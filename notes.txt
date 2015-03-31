@@ -1,0 +1,2 @@
+Get champion skin image:
+	http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{CHAMP_NAME}_{SKIN_NUMBER}.jpg
