@@ -1,2 +1,8 @@
 Get champion skin image:
 	http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{CHAMP_NAME}_{SKIN_NUMBER}.jpg
+Get match:
+    https://na.api.pvp.net/api/lol/na/v2.2/match/{matchId}
+Get champion:
+    https://na.api.pvp.net/api/lol/na/v1.2/champion/{id}
+Match history for summoner:
+    https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/{summonerId}
