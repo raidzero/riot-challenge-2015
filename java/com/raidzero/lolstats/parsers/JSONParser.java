@@ -13,4 +13,8 @@ public abstract class JSONParser {
     public JSONParser(String jsonData) throws JSONException {
         jsonObject = new JSONObject(jsonData);
     }
+
+    public static String stripJunkFromArray(String jsonString) {
+        return jsonString.replaceAll("^\\[", "").replaceAll("\\]$", "");
+    }
 }

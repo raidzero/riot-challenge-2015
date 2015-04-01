@@ -15,7 +15,7 @@ public class ChampionParser extends JSONParser {
     private String tag = "ChampionParser";
 
     public int championId;
-    public String name, title;
+    public String name, title, key;
 
     public ChampionParser(String jsonData) throws JSONException {
         super(jsonData);
@@ -23,6 +23,7 @@ public class ChampionParser extends JSONParser {
         championId = jsonObject.getInt("id");
         name = jsonObject.getString("name");
         title = jsonObject.getString("title");
+        key = jsonObject.getString("key");
 
         Log.d(tag, "parsing finished!");
     }
@@ -31,9 +32,9 @@ public class ChampionParser extends JSONParser {
         Champion rtnChamp = new Champion(championId);
 
         rtnChamp.name = name;
-        rtnChamp.title = title;
+        rtnChamp.key = key;
+        rtnChamp.setTitle(title);
 
         return rtnChamp;
     }
-
 }

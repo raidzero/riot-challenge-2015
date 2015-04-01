@@ -19,8 +19,11 @@ public class Common {
         ON_COMPLETE
     }
 
+    // rest request codes
+    public static final int REQUEST_CODE_MATCH = 1000;
+
     // static list of 5 match ID's. this will be replaced with random match ID's.
-    public static int[] MATCH_IDS = { 1749315593, 1750322945, 1751326160, 1751406221, 1755642247 };
+    public static final int[] MATCH_IDS = { 1749315593, 1750322945, 1751326160, 1751406221, 1755642247 };
 
     // URL prefix for champion skin image
     public static final String CHAMPION_SKIN_URL_PREFIX = "http://ddragon.leagueoflegends.com/cdn/img/champion/splash/"; // {CHAMP_NAME}_0.jpg

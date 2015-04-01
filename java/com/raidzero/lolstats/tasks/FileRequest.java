@@ -28,6 +28,7 @@ import com.raidzero.lolstats.global.Common.FILE_MESSAGE_TYPE;
 public class FileRequest {
     private final String tag = "FileRequest";
 
+    private int mReqCode;
     private URL mRequestUrl;
     private FileRequestListener mFileRequestListener;
     private File mDownloadedFile = null;
@@ -40,18 +41,19 @@ public class FileRequest {
             switch (requestMessage.msgType) {
 
                 case ON_START:
-                    mFileRequestListener.onFileDownloadStart();
+                    mFileRequestListener.onFileDownloadStart(mReqCode);
                     break;
 
                 case ON_COMPLETE:
-                    mFileRequestListener.onFileComplete((Uri) requestMessage.obj);
+                    mFileRequestListener.onFileComplete(mReqCode, (Uri) requestMessage.obj);
                     break;
             }
         }
     };
 
-    public FileRequest(Context context, String requestUrl) {
-        mFileRequestListener = (FileRequestListener) context;
+    public FileRequest(Context context, FileRequestListener listener, int requestCode, String requestUrl) {
+        mFileRequestListener = listener;
+        mReqCode = requestCode;
 
         try {
             mRequestUrl = new URL(requestUrl);

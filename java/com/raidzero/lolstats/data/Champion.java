@@ -1,26 +1,35 @@
 package com.raidzero.lolstats.data;
 
-import android.net.Uri;
-
 /**
  * Created by posborn on 3/31/15.
  */
 public class Champion {
 
-    public String title, name;
+    public String title, name, key;
     public int id;
 
     public String skinImgPath, portraitImgPath;
+
+
 
     public Champion(int id) {
         this.id = id;
     }
 
-    public Uri getChampionPortait() {
-        return null;
+    // some titles don't start with "the", but most do, so...
+    public void setTitle(String title) {
+        if (!title.startsWith("the")) {
+            this.title = "the " + title;
+        } else {
+            this.title = title;
+        }
     }
 
-    public Uri getChampionBackground() {
-        return null;
+    public String getChampionPortaitPath() {
+        return "/" + key + ".png";
+    }
+
+    public String getChampionBackgroundPath() {
+        return "/" + key + "_0.jpg";
     }
 }

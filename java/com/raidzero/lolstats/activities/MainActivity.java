@@ -4,28 +4,37 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
-import android.widget.Toast;
+import android.widget.ImageView;
 
 import com.raidzero.lolstats.R;
+import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
+import com.raidzero.lolstats.data.Participant;
+import com.raidzero.lolstats.global.ChampionImageDownloader;
 import com.raidzero.lolstats.global.Common;
+import com.raidzero.lolstats.interfaces.ChampionImageListener;
 import com.raidzero.lolstats.interfaces.FileRequestListener;
 import com.raidzero.lolstats.interfaces.RestRequestListener;
 import com.raidzero.lolstats.parsers.MatchParser;
-import com.raidzero.lolstats.tasks.FileRequest;
 
 import org.json.JSONException;
 
 import com.raidzero.lolstats.global.Common.REQUEST_TYPE;
 import com.raidzero.lolstats.tasks.RestRequest;
 
+import java.io.IOException;
+import java.util.Random;
+
 /**
  * Created by posborn on 3/31/15.
  */
-public class MainActivity extends Activity implements RestRequestListener, FileRequestListener {
+public class MainActivity extends Activity implements RestRequestListener, ChampionImageListener, FileRequestListener {
     private final String tag = "MainActivity";
+
+    private Champion[] mChampions = new Champion[10];
+
+    private ImageView portraitView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,42 +47,73 @@ public class MainActivity extends Activity implements RestRequestListener, FileR
     public void onResume() {
         super.onResume();
 
-        int matchId = Common.MATCH_IDS[0];
+        setLoadingScreenDrawable();
 
-        RestRequest matchRequest = new RestRequest(this, REQUEST_TYPE.MATCH, Common.MATCH_PATH + matchId);
+        portraitView = (ImageView) findViewById(R.id.imgPortraitView);
+        int matchId = Common.MATCH_IDS[new Random().nextInt(4)];
+
+        RestRequest matchRequest = new RestRequest(this, REQUEST_TYPE.MATCH, Common.REQUEST_CODE_MATCH, Common.MATCH_PATH + matchId);
         matchRequest.startOperation();
-
-        FileRequest skinRequest = new FileRequest(this, Common.CHAMPION_SKIN_URL_PREFIX + "Malzahar_0.jpg");
-        skinRequest.startOperation();
     }
 
     @Override
-    public void onRestRequestComplete(REQUEST_TYPE reqType, String jsonData) {
+    public void onRestRequestComplete(REQUEST_TYPE reqType, int requestCode, String jsonData) {
         Log.d(tag, "HEY I GOT STUFF: " + jsonData.length() + " bytes. " + reqType);
 
         try {
-            MatchParser parser = new MatchParser(jsonData);
-            Match m = parser.getMatchFromParser();
+            switch (reqType) {
+                case MATCH:
+                    MatchParser parser = new MatchParser(jsonData);
+                    Match m = parser.getMatchFromParser();
 
-            Log.d(tag, "HOORAY! GOT A MATCH OBJECT: " + m.matchMode);
+                    Log.d(tag, "HOORAY! GOT A MATCH OBJECT: " + m.matchMode);
+
+                    // start champion processor which downloads all champion images
+                    mChampions = m.getChampionsInMatch();
+                    ChampionImageDownloader processor = new ChampionImageDownloader(this);
+                    processor.processChampions(mChampions);
+
+                    break;
+            }
         } catch (JSONException e) {
             Log.e(tag, e.getMessage());
         }
     }
 
     @Override
-    public void onFileDownloadStart() {
-        Toast.makeText(this, "Download started.", Toast.LENGTH_SHORT).show();
-        Log.d(tag, "download started!");
+    public void onChampionImagesDownloaded() {
+        int r = new Random().nextInt(9);
+        String bgPath = getCacheDir() + mChampions[r].getChampionBackgroundPath();
+        String fgPath = getCacheDir() + mChampions[r].getChampionPortaitPath();
+
+        Log.d(tag, "bgImg: " + bgPath);
+
+        Drawable bgImg = Drawable.createFromPath(bgPath);
+        Drawable fgImg = Drawable.createFromPath(fgPath);
+
+        portraitView.setImageDrawable(fgImg);
+        getWindow().getDecorView().setBackground(bgImg);
     }
 
     @Override
-    public void onFileComplete(Uri fileUri) {
-        Toast.makeText(this, "Download complete!", Toast.LENGTH_SHORT).show();
-        Log.d(tag, "Downlod complete: " + fileUri.toString());
+    public void onFileDownloadStart(int requestCode) {
 
-        Drawable img = Drawable.createFromPath(fileUri.getEncodedPath());
-        getWindow().getDecorView().setBackground(img);
+    }
 
+    @Override
+    public void onFileComplete(int requestCode, Uri fileUri) {
+        String path = fileUri.getEncodedPath();
+        Drawable d = Drawable.createFromPath(path);
+        getWindow().getDecorView().setBackground(d);
+    }
+
+    private void setLoadingScreenDrawable() {
+        int randomNum = new Random().nextInt((4 - 1) + 1) + 1;
+        try {
+            Drawable d = Drawable.createFromStream(getAssets().open("loading" + randomNum + ".jpg"), null);
+            getWindow().getDecorView().setBackground(d);
+        } catch (IOException e) {
+            Log.e(tag, e.getMessage());
+        }
     }
 }

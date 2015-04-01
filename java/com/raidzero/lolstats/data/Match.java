@@ -5,12 +5,22 @@ package com.raidzero.lolstats.data;
  */
 public class Match {
 
-    // array of champions in the match
-    public Champion[] champions = new Champion[10];  // 10 champions in a match
+    // array of participants in the match
+    public Participant[] participants = new Participant[10];
 
     // match mode
     public String matchMode;
 
     // ID of match
     public int matchId;
+
+    public Champion[] getChampionsInMatch() {
+        Champion[] rtn = new Champion[10];
+
+        for (int i = 0; i < participants.length; i++) {
+            rtn[i] = participants[i].champion;
+        }
+
+        return rtn;
+    }
 }

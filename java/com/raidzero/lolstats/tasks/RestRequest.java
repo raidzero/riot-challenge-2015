@@ -24,6 +24,7 @@ import com.raidzero.lolstats.global.Common.REQUEST_TYPE;
 public class RestRequest {
     private final String tag = "RestRequest";
 
+    private int mReqCode;
     private URL mRequestUrl;
     private REQUEST_TYPE mReqType;
     private RestRequestListener mRequestListener;
@@ -32,13 +33,14 @@ public class RestRequest {
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            mRequestListener.onRestRequestComplete(mReqType, (String) msg.obj);
+            mRequestListener.onRestRequestComplete(mReqType, mReqCode, (String) msg.obj);
         }
     };
 
-    public RestRequest(Context context, REQUEST_TYPE reqType, String requestPath) {
-        mRequestListener = (RestRequestListener) context;
+    public RestRequest(RestRequestListener listener, REQUEST_TYPE reqType, int requestCode, String requestPath) {
+        mRequestListener = listener;
         mReqType = reqType;
+        mReqCode = requestCode;
 
         // always start rest requests with API prefix
         String requestString = Common.API_PREFIX;
