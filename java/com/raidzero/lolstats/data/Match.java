@@ -8,6 +8,10 @@ public class Match {
     // array of champions in the match
     public Champion[] champions = new Champion[10];  // 10 champions in a match
 
+    // ID of match
+    public int matchId;
+
+
 
 
 

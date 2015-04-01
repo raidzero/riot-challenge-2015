@@ -10,10 +10,8 @@ public class Champion {
     public String title, name;
     public int id;
 
-    public Champion(int id, String name, String title) {
+    public Champion(int id) {
         this.id = id;
-        this.name = name;
-        this.title = title;
     }
 
     public Uri getChampionPortait() {

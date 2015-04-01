@@ -28,18 +28,20 @@ public class RestRequest {
     private final String tag = "RestRequest";
 
     private URL mRequestUrl;
+    private Common.REQUEST_TYPE mReqType;
     private RestRequestListener mRequestListener;
 
     // handler to invoke callback method
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            mRequestListener.onRestRequestComplete((String) msg.obj);
+            mRequestListener.onRestRequestComplete(mReqType, (String) msg.obj);
         }
     };
 
-    public RestRequest(Context context, String requestUrl) {
+    public RestRequest(Context context, Common.REQUEST_TYPE reqType, String requestUrl) {
         mRequestListener = (RestRequestListener) context;
+        mReqType = reqType;
         String requestString = requestUrl;
 
         requestString += "?api_key=" + Common.API_KEY; // always add api key
@@ -62,13 +64,13 @@ public class RestRequest {
                 InputStream is = urlConnection.getInputStream();
                 BufferedInputStream bis = new BufferedInputStream(is);
 
-                byte[] contents = new byte[32768];
+                byte[] buffer = new byte[1024]; // read 1024 bytes at a time
 
-                int bytesRead=0;
+                int bytesRead = 0;
 
                 String response = "";
-                while((bytesRead = bis.read(contents)) != -1){
-                    response = new String(contents, 0, bytesRead);
+                while((bytesRead = bis.read(buffer)) != -1){
+                    response += new String(buffer, 0, bytesRead);
                 }
 
                 Message completeMsg = new Message();

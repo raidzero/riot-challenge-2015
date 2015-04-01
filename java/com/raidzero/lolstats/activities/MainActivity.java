@@ -9,8 +9,14 @@ import android.util.Log;
 import com.raidzero.lolstats.R;
 import com.raidzero.lolstats.global.Common;
 import com.raidzero.lolstats.interfaces.RestRequestListener;
+import com.raidzero.lolstats.parsers.JSONParser;
+import com.raidzero.lolstats.parsers.MatchParser;
 import com.raidzero.lolstats.tasks.DownloadRunnable;
 import com.raidzero.lolstats.tasks.RestRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by posborn on 3/31/15.
@@ -38,10 +44,9 @@ public class MainActivity extends Activity implements RestRequestListener {
 
         // simulate receiving 5 match ID's
         for (int matchId : Common.MATCH_IDS) {
-            RestRequest request = new RestRequest(this,
+            RestRequest request = new RestRequest(this, Common.REQUEST_TYPE.MATCH,
                     Common.API_PREFIX + Common.MATCH_PATH + matchId);
             request.startOperation();
-
         }
 
         DownloadRunnable d = new DownloadRunnable(this, uiHandler, Common.CHAMPION_SKIN_URL_PREFIX + "Malzahar_0.jpg");
@@ -50,10 +55,13 @@ public class MainActivity extends Activity implements RestRequestListener {
     }
 
     @Override
-    public void onRestRequestComplete(String jsonData) {
-        Log.d(tag, "HEY I GOT STUFF");
-        Log.d(tag, jsonData);
+    public void onRestRequestComplete(Common.REQUEST_TYPE reqType, String jsonData) {
+        Log.d(tag, "HEY I GOT STUFF: " + jsonData.length() + " bytes. " + reqType);
 
-
+        try {
+            MatchParser parser = new MatchParser(jsonData);
+        } catch (JSONException e) {
+            Log.e(tag, e.getMessage());
+        }
     }
 }
