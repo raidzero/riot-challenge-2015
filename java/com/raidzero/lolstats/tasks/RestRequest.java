@@ -1,7 +1,6 @@
 package com.raidzero.lolstats.tasks;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -9,17 +8,15 @@ import android.util.Log;
 import com.raidzero.lolstats.global.Common;
 import com.raidzero.lolstats.interfaces.RestRequestListener;
 
-import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+
+import com.raidzero.lolstats.global.Common.REQUEST_TYPE;
 
 /**
  * Created by posborn on 3/31/15.
@@ -28,7 +25,7 @@ public class RestRequest {
     private final String tag = "RestRequest";
 
     private URL mRequestUrl;
-    private Common.REQUEST_TYPE mReqType;
+    private REQUEST_TYPE mReqType;
     private RestRequestListener mRequestListener;
 
     // handler to invoke callback method
@@ -39,17 +36,23 @@ public class RestRequest {
         }
     };
 
-    public RestRequest(Context context, Common.REQUEST_TYPE reqType, String requestUrl) {
+    public RestRequest(Context context, REQUEST_TYPE reqType, String requestPath) {
         mRequestListener = (RestRequestListener) context;
         mReqType = reqType;
-        String requestString = requestUrl;
 
-        requestString += "?api_key=" + Common.API_KEY; // always add api key
+        // always start rest requests with API prefix
+        String requestString = Common.API_PREFIX;
+
+        // add in actual request path
+        requestString += requestPath;
+
+        // stick API key on the end
+        requestString += "?api_key=" + Common.API_KEY;
 
         try {
             mRequestUrl = new URL(requestString);
         } catch (MalformedURLException e) {
-            //ignored
+            Log.e(tag, "Malformed URL!" + e.getMessage());
         }
     }
 

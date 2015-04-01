@@ -3,6 +3,7 @@ package com.raidzero.lolstats.parsers;
 import android.util.Log;
 
 import com.raidzero.lolstats.data.Champion;
+import com.raidzero.lolstats.data.Match;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,5 +42,14 @@ public class MatchParser extends JSONParser {
         Log.d(tag, "parsing finished!");
     }
 
+    public Match getMatchFromParser() {
+        Match m = new Match();
+
+        m.champions = championsInMatch;
+        m.matchId = matchId;
+        m.matchMode = matchMode;
+
+        return m;
+    }
 
 }

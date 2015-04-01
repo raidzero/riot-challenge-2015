@@ -10,6 +10,8 @@ public class Champion {
     public String title, name;
     public int id;
 
+    public String skinImgPath, portraitImgPath;
+
     public Champion(int id) {
         this.id = id;
     }
