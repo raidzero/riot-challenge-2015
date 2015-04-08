@@ -1,8 +1,8 @@
 package com.raidzero.lolstats.interfaces;
 
 /**
- * Created by posborn on 4/1/15.
+ * Created by raidzero on 4/7/15.
  */
 public interface ChampionImageListener {
-    public void onChampionImagesDownloaded();
+    void onChampionImagesDownloaded();
 }

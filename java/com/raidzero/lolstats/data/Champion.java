@@ -1,16 +1,14 @@
 package com.raidzero.lolstats.data;
 
+import com.raidzero.lolstats.global.Common;
+
 /**
  * Created by posborn on 3/31/15.
  */
 public class Champion {
 
-    public String title, name, key;
+    public String title, name, key, summonerName;
     public int id;
-
-    public String skinImgPath, portraitImgPath;
-
-
 
     public Champion(int id) {
         this.id = id;

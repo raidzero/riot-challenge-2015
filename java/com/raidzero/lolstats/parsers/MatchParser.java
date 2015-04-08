@@ -6,7 +6,6 @@ import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
 import com.raidzero.lolstats.data.Participant;
 import com.raidzero.lolstats.data.Summoner;
-import com.raidzero.lolstats.interfaces.RestRequestListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;

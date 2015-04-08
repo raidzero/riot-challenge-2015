@@ -37,6 +37,9 @@ public class Common {
     // REST path for match info
     public static final String MATCH_PATH = "/na/v2.2/match/";
 
-    //REST path for champion info
+    // REST path for random match ID's
+    public static final String RANDOM_MATCH_PATH = "/na/v4.1/game/ids"; // ?beginDate=09:05
+
+    // REST path for champion info
     public static final String CHAMPION_PATH = "/static-data/na/v1.2/champion/";
 }
