@@ -3,7 +3,6 @@ package com.raidzero.lolstats.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -13,7 +12,7 @@ import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
 import com.raidzero.lolstats.data.RequestCommand;
 import com.raidzero.lolstats.global.AppHelper;
-import com.raidzero.lolstats.global.ChampionImageDownloader;
+import com.raidzero.lolstats.global.ChampionInfoDownloader;
 import com.raidzero.lolstats.global.Common;
 import com.raidzero.lolstats.global.RequestProcessor;
 import com.raidzero.lolstats.interfaces.ChampionImageListener;
@@ -70,22 +69,6 @@ public class MainActivity extends Activity implements ChampionImageListener, Req
     public void onChampionImagesDownloaded() {
         Intent i = new Intent(this, MatchResultsView.class);
         startActivity(i);
-        /*int r = new Random().nextInt(9);
-        String bgPath = getCacheDir() + mChampions[r].getChampionBackgroundPath();
-        String fgPath = getCacheDir() + mChampions[r].getChampionPortaitPath();
-
-        Log.d(tag, "bgImg: " + bgPath);
-
-        final Drawable bgImg = Drawable.createFromPath(bgPath);
-        final Drawable fgImg = Drawable.createFromPath(fgPath);
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                portraitView.setImageDrawable(fgImg);
-                getWindow().getDecorView().setBackground(bgImg);
-            }
-        });*/
     }
 
     private void setLoadingScreenDrawable() {
@@ -124,8 +107,9 @@ public class MainActivity extends Activity implements ChampionImageListener, Req
 
                     mHelper.setMatchChampions(mChampions);
 
-                    ChampionImageDownloader processor = new ChampionImageDownloader(this);
+                    ChampionInfoDownloader processor = new ChampionInfoDownloader(this);
                     processor.processChampions();
+
 
                     break;
             }

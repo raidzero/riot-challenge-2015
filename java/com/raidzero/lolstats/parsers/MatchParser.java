@@ -54,6 +54,10 @@ public class MatchParser extends JSONParser {
                 p.doubleKills = statsObj.getInt("doubleKills");
                 p.totalKills = statsObj.getInt("kills");
                 p.deaths = statsObj.getInt("deaths");
+                p.assists = statsObj.getInt("assists");
+
+                // winning team?
+                p.winningTeam = statsObj.getBoolean("winner");
 
                 participants[i] = p;
 

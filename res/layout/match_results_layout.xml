@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <View
@@ -8,32 +10,65 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_centerInParent="true"
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
         />
 
     <LinearLayout
         android:id="@+id/team1Container"
         android:orientation="horizontal"
         android:layout_above="@id/centerMarker"
-        android:paddingBottom="20dp"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
     </LinearLayout>
+    <TextView
+        android:id="@+id/txt_team1Stats"
+        android:textStyle="bold"
+        android:textSize="28sp"
+        android:paddingTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/team1Container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:shadowColor="@android:color/black"
+        android:shadowRadius="25"
+        />
 
     <LinearLayout
         android:id="@+id/team2Container"
         android:orientation="horizontal"
         android:layout_below="@id/centerMarker"
-        android:paddingTop="20dp"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/txt_team2Stats"
+        android:textStyle="bold"
+        android:textSize="28sp"
+        android:paddingBottom="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/team2Container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:shadowColor="@android:color/black"
+        android:shadowRadius="25"
+        />
+
     <ImageView
+        android:id="@+id/versus"
         android:layout_width="wrap_content"
         android:layout_centerInParent="true"
         android:layout_height="150dp"
-        android:src="@drawable/versus"/>
+        android:src="@drawable/versus"
+        android:visibility="gone"/>
 </RelativeLayout>

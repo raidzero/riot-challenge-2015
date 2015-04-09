@@ -1,7 +1,7 @@
 package com.raidzero.lolstats.data;
 
 /**
- * Created by posborn on 4/1/15.
+ * Created by raidzero on 4/8/15.
  */
 public class Summoner {
     public String name;
