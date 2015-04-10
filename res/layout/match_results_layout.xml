@@ -24,6 +24,7 @@
         android:visibility="gone"
         tools:visibility="visible">
     </LinearLayout>
+
     <TextView
         android:id="@+id/txt_team1Stats"
         android:textStyle="bold"

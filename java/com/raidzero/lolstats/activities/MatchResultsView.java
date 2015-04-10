@@ -60,6 +60,8 @@ public class MatchResultsView extends Activity {
 
     private String mTeam1StatsStr, mTeam2StatsStr;
 
+    private int mWinningTeamId = 0;
+
     private ImageDownloadListener mImageDownloadListener = new ImageDownloadListener() {
         @Override
         public void onImageDownloaded(final String location, final ImageView imageView,
@@ -112,27 +114,44 @@ public class MatchResultsView extends Activity {
         int team1Kills = 0; int team1Deaths = 0; int team1Assists = 0;
         int team2Kills = 0; int team2Deaths = 0; int team2Assists = 0;
 
+
         for (int i = 0; i < participants.length; i++) {
             Champion c = matchChampions[i];
-            c.summonerName = participants[i].summoner.name;
-            mMatch.participants[i].champion = c;
+            Participant p = participants[i];
 
+            mMatch.participants[i].champion = c;
 
             if (participants[i].teamId == 100) {
                 mChampionsTeam1.add(c);
-                team1Deaths += mMatch.participants[i].deaths;
-                team1Kills += mMatch.participants[i].totalKills;
-                team1Assists += mMatch.participants[i].assists;
+                team1Deaths += p.deaths;
+                team1Kills += p.totalKills;
+                team1Assists += p.assists;
+
+                if (p.winningTeam) {
+                    mWinningTeamId = 100;
+                }
             } else {
                 mChampionsTeam2.add(c);
-                team2Deaths += mMatch.participants[i].deaths;
-                team2Kills += mMatch.participants[i].totalKills;
-                team2Assists += mMatch.participants[i].assists;
+                team2Deaths += p.deaths;
+                team2Kills += p.totalKills;
+                team2Assists += p.assists;
+
+                if (p.winningTeam) {
+                    mWinningTeamId = 200;
+                }
             }
         }
 
         mTeam1StatsStr = String.format("%d/%d/%d", team1Kills, team1Deaths, team1Assists);
         mTeam2StatsStr = String.format("%d/%d/%d", team2Kills, team2Deaths, team2Assists);
+
+        if (mWinningTeamId == 100) {
+            mTeam1StatsView.setTextColor(Color.GREEN);
+            mTeam2StatsView.setTextColor(Color.RED);
+        } else {
+            mTeam1StatsView.setTextColor(Color.RED);
+            mTeam2StatsView.setTextColor(Color.GREEN);
+        }
 
         mTeam1StatsView.setText(mTeam1StatsStr);
         mTeam2StatsView.setText(mTeam2StatsStr);
@@ -146,34 +165,19 @@ public class MatchResultsView extends Activity {
         int champLayoutId;
         LinearLayout teamContainer;
 
-        // the winning team should not always be on top...
-        int topTeam = new Random().nextInt(1);
-
         if (teamId == 100) {
             teamContainer = (LinearLayout) findViewById(R.id.team1Container);
-
-            if (topTeam > 0) {
-                champLayoutId = R.layout.champion_layout_top;
-            } else {
-                champLayoutId = R.layout.champion_layout_bottom;
-            }
-
+            champLayoutId = R.layout.champion_layout_top;
             champions = mChampionsTeam1;
         } else {
             teamContainer = (LinearLayout) findViewById(R.id.team2Container);
-
-            if (topTeam > 0) {
-                champLayoutId = R.layout.champion_layout_bottom;
-            } else {
-                champLayoutId = R.layout.champion_layout_top;
-            }
-
+            champLayoutId = R.layout.champion_layout_bottom;
             champions = mChampionsTeam2;
         }
 
         // now that the lists of champions is ready, lets start processing
         for (Champion c : champions) {
-            String summonerName = c.summonerName;
+            String summonerName = c.name;
 
             // inflate a view
             View v = View.inflate(this, champLayoutId, null);
@@ -215,23 +219,18 @@ public class MatchResultsView extends Activity {
         };
 
         Champion winningChampion = null;
+
         for (int i = participants.size() - 1; i >= 0; i--) {
             if (participants.get(i).winningTeam) {
                 winningChampion = participants.get(i).champion;
-
-                if (participants.get(i).teamId == 100) {
-                    mTeam1StatsView.setTextColor(Color.GREEN);
-                    mTeam2StatsView.setTextColor(Color.RED);
-                } else {
-                    mTeam1StatsView.setTextColor(Color.RED);
-                    mTeam2StatsView.setTextColor(Color.GREEN);
-                }
                 break;
             }
         }
 
         if (winningChampion != null) {
             // start an asynctask to download & display this image
+            Log.d(tag, "winning summoner: " + winningChampion.summonerName);
+
             ImageDownloadTask task =
                     new ImageDownloadTask(
                             Common.CHAMPION_SKIN_URL_PREFIX
@@ -263,7 +262,7 @@ public class MatchResultsView extends Activity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     // dont care really
                 }

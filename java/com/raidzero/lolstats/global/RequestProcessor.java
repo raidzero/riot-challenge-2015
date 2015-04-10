@@ -11,6 +11,7 @@ import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +55,7 @@ public class RequestProcessor {
 
     /**
      * adds a request to the command processor
+     *
      * @param command (RequestCommand)
      */
     public static void addRequest(RequestCommand command) {
@@ -87,34 +89,15 @@ public class RequestProcessor {
                 if (!mCommands.empty()) {
                     RequestCommand command = mCommands.pop();
 
-                    switch (command.requestType) {
-                        /**
-                         * start FILE processing
-                         */
-                        case FILE:
-                            // start file thread on this comm,and
-                            FileRunnable fileRunnable = new FileRunnable();
-                            fileRunnable.setCommand(command);
-                            Thread fileThread = new Thread(fileRunnable);
-                            fileThread.start();
-                            mNumWorkersRunning++;
-                            break;
-
-                        /**
-                         * start REST processing
-                         */
-                        case REST:
-                            // start rest thread on this command
-                            RestRunnable restRunnable = new RestRunnable();
-                            restRunnable.setCommand(command);
-                            Thread restThread = new Thread(restRunnable);
-                            restThread.start();
-                            mNumWorkersRunning++;
-                            break;
-                    }
-                } // end command stack empty check
-            } // end while loop
-        } // end run();
+                    // start rest thread on this command
+                    RestRunnable restRunnable = new RestRunnable();
+                    restRunnable.setCommand(command);
+                    Thread restThread = new Thread(restRunnable);
+                    restThread.start();
+                    mNumWorkersRunning++;
+                }
+            }
+        }
 
         /**
          * base command runnable
@@ -150,7 +133,15 @@ public class RequestProcessor {
                 requestString += mRequestUrl;
 
                 // stick API key on the end
-                requestString += "?api_key=" + Common.API_KEY;
+                String separator = "?";
+
+                if (requestString.contains("?")) {
+                    separator = "&";
+                }
+
+                requestString += separator + "api_key=" + Common.API_KEY;
+
+                Log.d(tag, "requestString: " + requestString);
 
                 try {
                     requestUrl = new URL(requestString);
@@ -171,7 +162,7 @@ public class RequestProcessor {
                     int bytesRead = 0;
 
                     String response = "";
-                    while((bytesRead = bis.read(buffer)) != -1){
+                    while ((bytesRead = bis.read(buffer)) != -1) {
                         response += new String(buffer, 0, bytesRead);
                     }
 
@@ -180,61 +171,11 @@ public class RequestProcessor {
                     Log.d(tag, "obj: " + response);
                     mListener.onProcessComplete(mCommand);
                     mNumWorkersRunning--;
-
-                } catch (IOException e) {
-                    Log.e(tag, e.getMessage());
-                }
-            }
-        }
-
-        private class FileRunnable extends CommandRunnable implements Runnable {
-
-            public void setCommand(RequestCommand command) {
-                mCommand = command;
-                mRequestUrl = command.requestUrl;
-                mListener = command.listener;
-            }
-
-            @Override
-            public void run() {
-                mListener.onProcessStart(mCommand);
-
-                try {
-                    requestUrl = new URL(mCommand.requestUrl);
-                } catch (MalformedURLException e) {
+                } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                }
-
-                // pull off filename
-                String fileName =
-                        mRequestUrl.substring(mRequestUrl.lastIndexOf('/') + 1, mRequestUrl.length());
-                File destDir = mCommand.destDir;
-                File downloadedFile = new File(destDir, fileName);
-
-                try {
-                    URLConnection urlConnection = requestUrl.openConnection();
-                    urlConnection.setUseCaches(true);
-                    urlConnection.connect();
-
-                    InputStream is = urlConnection.getInputStream();
-                    BufferedInputStream bis = new BufferedInputStream(is);
-
-                    ByteArrayBuffer baf = new ByteArrayBuffer(5000);
-
-                    int current;
-                    while ((current = bis.read()) != -1) {
-                        baf.append((byte) current);
-                    }
-
-                    FileOutputStream fos = new FileOutputStream(downloadedFile);
-                    fos.write(baf.toByteArray());
-                    fos.flush();
-                    fos.close();
-
-                    mListener.onProcessComplete(mCommand);
-                    mNumWorkersRunning--;
-                } catch (IOException e) {
-                    Log.e(tag, e.getMessage());
+                    mListener.onProcessComplete(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

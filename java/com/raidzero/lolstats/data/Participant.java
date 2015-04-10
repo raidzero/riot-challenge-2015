@@ -8,7 +8,6 @@ import android.provider.Telephony;
 public class Participant implements Comparable<Participant> {
 
     public Champion champion; // champion used
-    public Summoner summoner; // who played
 
     /**
      * the following stuff comes from the stats participant array
@@ -20,6 +19,6 @@ public class Participant implements Comparable<Participant> {
 
     @Override
     public int compareTo(Participant another) {
-        return this.totalKills - another.totalKills;
+        return totalKills - another.totalKills;
     }
 }

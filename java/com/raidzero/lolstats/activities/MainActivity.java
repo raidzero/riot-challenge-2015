@@ -14,6 +14,7 @@ import com.raidzero.lolstats.data.RequestCommand;
 import com.raidzero.lolstats.global.AppHelper;
 import com.raidzero.lolstats.global.ChampionInfoDownloader;
 import com.raidzero.lolstats.global.Common;
+import com.raidzero.lolstats.global.DateUtility;
 import com.raidzero.lolstats.global.RequestProcessor;
 import com.raidzero.lolstats.interfaces.ChampionImageListener;
 import com.raidzero.lolstats.interfaces.RequestCommandListener;
@@ -22,17 +23,17 @@ import com.raidzero.lolstats.parsers.MatchParser;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
  * Created by posborn on 3/31/15.
  */
-public class MainActivity extends Activity implements ChampionImageListener, RequestCommandListener {
+public class MainActivity extends Activity implements ChampionImageListener, RequestCommandListener, DateUtility.MatchIDsListener {
     private final String tag = "MainActivity";
 
     private Champion[] mChampions = new Champion[10];
-
-    private ImageView portraitView;
 
     private AppHelper mHelper;
 
@@ -51,18 +52,7 @@ public class MainActivity extends Activity implements ChampionImageListener, Req
 
         setLoadingScreenDrawable();
 
-        portraitView = (ImageView) findViewById(R.id.imgPortraitView);
-        int matchId = Common.MATCH_IDS[new Random().nextInt(4)];
-
-        // make request command
-        RequestCommand command = new RequestCommand();
-        command.requestType = RequestCommand.RequestType.REST;
-        command.requestUrl = Common.MATCH_PATH + matchId;
-        command.requestId = 0;
-        command.listener = this;
-
-        // start request processor
-        RequestProcessor.addRequest(command);
+        new DateUtility(this).getMatchIds();
     }
 
     @Override
@@ -91,30 +81,45 @@ public class MainActivity extends Activity implements ChampionImageListener, Req
         Log.d(tag, "onProcessComplete: " + command.restResponse);
 
         try {
-            switch (command.requestType) {
-                case REST:
-                    String jsonData = command.restResponse;
+            String jsonData = command.restResponse;
 
-                    MatchParser parser = new MatchParser(jsonData);
-                    Match m = parser.getMatchFromParser();
+            MatchParser parser = new MatchParser(jsonData);
+            Match m = parser.getMatchFromParser();
 
-                    mHelper.setCurrentMatch(m);
+            mHelper.setCurrentMatch(m);
 
-                    Log.d(tag, "HOORAY! GOT A MATCH OBJECT: " + m.matchMode);
+            Log.d(tag, "HOORAY! GOT A MATCH OBJECT: " + m.matchMode);
 
-                    // start champion processor which downloads all champion images
-                    mChampions = m.getChampionsInMatch();
+            // start champion processor which downloads all champion images
+            mChampions = m.getChampionsInMatch();
 
-                    mHelper.setMatchChampions(mChampions);
+            mHelper.setMatchChampions(mChampions);
 
-                    ChampionInfoDownloader processor = new ChampionInfoDownloader(this);
-                    processor.processChampions();
+            ChampionInfoDownloader processor = new ChampionInfoDownloader(this);
+            processor.processChampions();
 
-
-                    break;
-            }
         } catch (JSONException e) {
+            e.printStackTrace();
             Log.e(tag, e.getMessage());
+        }
+    }
+
+    @Override
+    public void onMatchesReceived(List<Long> matchesReceived) {
+        if (matchesReceived != null) {
+            Log.d(tag, "Got stuff... " + matchesReceived.size());
+
+            long matchId = matchesReceived.get(new Random().nextInt(matchesReceived.size()));
+
+            // make request command
+            RequestCommand command = new RequestCommand();
+            command.requestUrl = Common.MATCH_PATH + matchId;
+            command.requestId = 0;
+            command.listener = this;
+
+            // start request processor
+            RequestProcessor.addRequest(command);
+
         }
     }
 }

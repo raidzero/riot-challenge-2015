@@ -39,7 +39,6 @@ public class ChampionInfoDownloader implements RequestCommandListener {
         for (int i = 0; i < champs.length; i++) {
             // get names and stuff
             RequestCommand command = new RequestCommand();
-            command.requestType = RequestCommand.RequestType.REST;
             command.listener = this;
             command.requestId = i;
             command.requestUrl = Common.CHAMPION_PATH + champs[i].id;
@@ -58,24 +57,20 @@ public class ChampionInfoDownloader implements RequestCommandListener {
     public void onProcessComplete(RequestCommand command) {
         Log.d(tag, "onProcessComplete: " + command.requestId);
 
-        switch (command.requestType) {
-            case REST: // champ info
-                try {
-                    ChampionParser parser = new ChampionParser(command.restResponse);
-                    mChampions[command.requestId] = parser.getChampionFromParser();
 
-                    mNumChampInfo++;
+        try {
+            ChampionParser parser = new ChampionParser(command.restResponse);
+            mChampions[command.requestId] = parser.getChampionFromParser();
 
-                    if (mNumChampInfo == 10) {
-                        // if all done, send this back to helper
-                        mHelper.setMatchChampions(mChampions);
-                        mListener.onChampionImagesDownloaded();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                break;
+            mNumChampInfo++;
+
+            if (mNumChampInfo == 10) {
+                // if all done, send this back to helper
+                mHelper.setMatchChampions(mChampions);
+                mListener.onChampionImagesDownloaded();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-
     }
 }

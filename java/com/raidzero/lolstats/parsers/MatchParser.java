@@ -5,7 +5,6 @@ import android.util.Log;
 import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
 import com.raidzero.lolstats.data.Participant;
-import com.raidzero.lolstats.data.Summoner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +21,6 @@ public class MatchParser extends JSONParser {
 
     public Champion[] championsInMatch = new Champion[10];
     public Participant[] participants = new Participant[10];
-    public Summoner[] summoners = new Summoner[10];
 
     public MatchParser(String jsonData) throws JSONException {
         super(jsonData);
@@ -67,33 +65,11 @@ public class MatchParser extends JSONParser {
             }
         }
 
-        // process summoners
-        JSONArray summonersArray = jsonObject.getJSONArray("participantIdentities");
-
-        for (int i = 0; i < summonersArray.length(); i++) {
-            try {
-                JSONObject obj = summonersArray.getJSONObject(i);
-                JSONObject playerObj = obj.getJSONObject("player");
-
-                Summoner s = new Summoner();
-                s.name = playerObj.getString("summonerName");
-
-                summoners[i] = s;
-            } catch (JSONException e) {
-                Log.e(tag, e.getMessage());
-            }
-        }
-
         Log.d(tag, "parsing finished!");
     }
 
     public Match getMatchFromParser() {
         Match m = new Match();
-
-        // add summoner names to participants
-        for (int i = 0; i < participants.length; i++) {
-            participants[i].summoner = summoners[i];
-        }
 
         m.participants = participants;
         m.matchId = matchId;
