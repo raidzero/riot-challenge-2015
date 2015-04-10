@@ -1,6 +1,5 @@
 package com.raidzero.lolstats.parsers;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,9 +11,5 @@ public abstract class JSONParser {
 
     public JSONParser(String jsonData) throws JSONException {
         jsonObject = new JSONObject(jsonData);
-    }
-
-    public static String stripJunkFromArray(String jsonString) {
-        return jsonString.replaceAll("^\\[", "").replaceAll("\\]$", "");
     }
 }

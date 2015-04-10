@@ -1,7 +1,5 @@
 package com.raidzero.lolstats.data;
 
-import android.provider.Telephony;
-
 /**
  * Created by posborn on 4/1/15.
  */

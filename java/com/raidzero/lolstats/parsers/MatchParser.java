@@ -59,7 +59,6 @@ public class MatchParser extends JSONParser {
 
                 participants[i] = p;
 
-
             } catch (JSONException e) {
                 Log.e(tag, e.getMessage());
             }

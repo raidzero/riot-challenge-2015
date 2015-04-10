@@ -1,15 +1,12 @@
 package com.raidzero.lolstats.activities;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Telephony;
+import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -23,32 +20,28 @@ import com.raidzero.lolstats.R;
 import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
 import com.raidzero.lolstats.data.Participant;
-import com.raidzero.lolstats.global.AppHelper;
+import com.raidzero.lolstats.global.ApiUtility;
 import com.raidzero.lolstats.global.Common;
 
-import org.apache.http.util.ByteArrayBuffer;
-
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by raidzero on 4/7/15.
  */
-public class MatchResultsView extends Activity {
+public class MatchResultsView extends Activity implements ApiUtility.ApiCallback {
     private static final String tag = "MatchResultsView";
 
-    private AppHelper mHelper;
+    private Handler mRefreshHandler = new Handler();
+
+    private ApiUtility mApiUtility;
     private ArrayList<Champion> mChampionsTeam1 = new ArrayList<>();
     private ArrayList<Champion> mChampionsTeam2 = new ArrayList<>();
     private Match mMatch;
@@ -81,20 +74,35 @@ public class MatchResultsView extends Activity {
         }
     };
 
+    private Runnable getMatchAndDisplay = new Runnable() {
+        @Override
+        public void run() {
+            mMatch = mApiUtility.getNextMatch();
+
+            if (mMatch == null) {
+
+            }
+
+            mChampionsTeam1.clear();
+            mChampionsTeam2.clear();
+
+            mContainerTeam1.removeAllViews();
+            mContainerTeam2.removeAllViews();
+
+            processChampions();
+            mRefreshHandler.postDelayed(this, 10000); // get a new match to show every 10 secs
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mHelper = ((AppHelper) getApplicationContext());
-
+        mApiUtility = ApiUtility.getInstance(this);
         setContentView(R.layout.match_results_layout);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        mMatch = mHelper.getCurrentMatch();
+        Drawable mainBg = MainActivity.bgDrawable;
+        getWindow().getDecorView().setBackground(mainBg);
 
         mContainerTeam1 = (LinearLayout) findViewById(R.id.team1Container);
         mContainerTeam2 = (LinearLayout) findViewById(R.id.team2Container);
@@ -103,21 +111,20 @@ public class MatchResultsView extends Activity {
         mTeam1StatsView = (TextView) findViewById(R.id.txt_team1Stats);
         mTeam2StatsView = (TextView) findViewById(R.id.txt_team2Stats);
 
-        processChampions();
+        // start the runnable right away
+        mRefreshHandler.postDelayed(getMatchAndDisplay, 0);
     }
 
     private void processChampions() {
-        Champion[] matchChampions = mHelper.getMatchChampions();
         Participant[] participants = mMatch.participants;
 
         // team stats
         int team1Kills = 0; int team1Deaths = 0; int team1Assists = 0;
         int team2Kills = 0; int team2Deaths = 0; int team2Assists = 0;
 
-
         for (int i = 0; i < participants.length; i++) {
-            Champion c = matchChampions[i];
             Participant p = participants[i];
+            Champion c = p.champion;
 
             mMatch.participants[i].champion = c;
 
@@ -229,7 +236,7 @@ public class MatchResultsView extends Activity {
 
         if (winningChampion != null) {
             // start an asynctask to download & display this image
-            Log.d(tag, "winning summoner: " + winningChampion.summonerName);
+            Log.d(tag, "winning summoner: " + winningChampion.name);
 
             ImageDownloadTask task =
                     new ImageDownloadTask(
@@ -311,6 +318,21 @@ public class MatchResultsView extends Activity {
         mContainerTeam2.startAnimation(animationBottom);
     }
 
+    @Override
+    public void onFirstMatchProcessed() {
+
+    }
+
+    @Override
+    public void onAllMatchesProcessed() {
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
     /**
      * ImageDownloadListener
      */
@@ -327,7 +349,6 @@ public class MatchResultsView extends Activity {
 
         private ImageDownloadListener mListener;
         private String mFileUrlString;
-        private URL mRequestUrl;
         private File mDownloadedFile;
 
         private TextView mSummonerView;
@@ -343,12 +364,6 @@ public class MatchResultsView extends Activity {
             mSummonerView = summonerView;
             mSummonerName = summonerName;
 
-            try {
-                mRequestUrl = new URL(mFileUrlString);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-
             // pull off filename
             String fileName =
                     mFileUrlString.substring(
@@ -357,38 +372,34 @@ public class MatchResultsView extends Activity {
             mDownloadedFile = new File(destDir, fileName);
         }
 
-
         @Override
         protected String doInBackground(Void... params) {
             //Log.d(tag, "doInBackground(" + mFileUrlString + ")");
 
-            try {
-                URLConnection urlConnection = mRequestUrl.openConnection();
-                urlConnection.setUseCaches(true);
-                urlConnection.connect();
+            if (!mDownloadedFile.exists()) {
+                try {
+                    InputStream is = (InputStream) new URL(mFileUrlString).getContent();
 
-                InputStream is = urlConnection.getInputStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
+                    FileOutputStream fos = new FileOutputStream(mDownloadedFile);
 
-                ByteArrayBuffer baf = new ByteArrayBuffer(5000);
+                    int bufferSize = 1024;
+                    byte[] buffer = new byte[bufferSize];
+                    int len = 0;
+                    while ((len = is.read(buffer)) != -1) {
+                        fos.write(buffer, 0, len);
+                    }
 
-                int current;
-                while ((current = bis.read()) != -1) {
-                    baf.append((byte) current);
+                    return mDownloadedFile.getPath();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-                FileOutputStream fos = new FileOutputStream(mDownloadedFile);
-                fos.write(baf.toByteArray());
-                fos.flush();
-                fos.close();
-
+                return null;
+            } else {
+                // already have this file.
                 return mDownloadedFile.getPath();
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
-            return null;
         }
 
         @Override

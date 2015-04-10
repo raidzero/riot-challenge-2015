@@ -4,9 +4,7 @@ import android.util.Log;
 
 import com.raidzero.lolstats.data.Champion;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by raidzero on 3/31/15.
@@ -25,7 +23,7 @@ public class ChampionParser extends JSONParser {
         title = jsonObject.getString("title");
         key = jsonObject.getString("key");
 
-        Log.d(tag, "parsing finished!");
+        //Log.d(tag, "parsing finished!");
     }
 
     public Champion getChampionFromParser() {
