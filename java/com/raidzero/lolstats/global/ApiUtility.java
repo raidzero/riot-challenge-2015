@@ -1,5 +1,6 @@
 package com.raidzero.lolstats.global;
 
+import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -44,6 +46,8 @@ public class ApiUtility {
     // list of running threads
     private ArrayList<Thread> mRunningThreads = new ArrayList<>();
 
+    private String mTestApiReponse;
+
     /**
      * singleton stuff
      */
@@ -68,7 +72,8 @@ public class ApiUtility {
     /**
      * starts a thread given a runnable, and waits for it to finish
      */
-    private void startThreadAndWait(Runnable r) throws InterruptedException {
+    private void startThreadAndWait(Runnable r) throws InterruptedException
+    {
         Thread t = new Thread(r);
 
         mRunningThreads.add(t);
@@ -109,6 +114,7 @@ public class ApiUtility {
                 response += new String(buffer, 0, bytesRead);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return "";
         }
 
@@ -232,13 +238,6 @@ public class ApiUtility {
 
                         Champion c = champParser.getChampionFromParser();
 
-                        // download this champion's portrait
-                        /* nevermind - takes too long, let the activity do this
-                        String path =
-                                fileRequest(Common.CHAMPION_PORTRAIT_URL_PREFIX + c.name + ".png");
-                        c.portraitPath = path;
-                        */
-
                         m.participants[i].champion = c;
                     }
 
@@ -258,6 +257,8 @@ public class ApiUtility {
                 startThreadAndWait(getMatchIdsRunnable);
             } catch (InterruptedException e) {
                 return;
+            } catch (Exception e) {
+
             }
 
             Log.d(tag, "Processing matches.");
@@ -287,11 +288,30 @@ public class ApiUtility {
         }
     };
 
+    private Runnable testApiRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mTestApiReponse = restRequest(Common.API_PREFIX + Common.CHAMPION_PATH + 1 +
+                    "?api_key=" + Common.API_KEY);
+        }
+    };
+
     // starts the whole shebang
     public void startProcessing() {
-        Thread t = new Thread(startProcessingRunnable);
-        mRunningThreads.add(t);
-        t.start();
+
+        try {
+            startThreadAndWait(testApiRunnable);
+        } catch (InterruptedException e) {
+            mCallback.onError();
+        }
+
+        if (!mTestApiReponse.isEmpty()) {
+            Thread t = new Thread(startProcessingRunnable);
+            mRunningThreads.add(t);
+            t.start();
+        } else {
+            mCallback.onError();
+        }
     }
 
     public void shutDown() {
@@ -306,6 +326,7 @@ public class ApiUtility {
      * callback interface
      */
     public interface ApiCallback {
+        void onError();
         void onFirstMatchProcessed();
         void onAllMatchesProcessed();
     }

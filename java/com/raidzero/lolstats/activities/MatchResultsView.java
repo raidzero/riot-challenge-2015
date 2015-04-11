@@ -1,6 +1,8 @@
 package com.raidzero.lolstats.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -50,11 +52,14 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private int mPortraitsDownloaded;
 
     private ImageView mBackground;
+    private LinearLayout mLoadingView;
     private LinearLayout mContainerTeam1, mContainerTeam2;
     private ImageView versusView;
     private TextView mTeam1StatsView, mTeam2StatsView;
 
+    private boolean mKeepLoading = true;
     private String mTeam1StatsStr, mTeam2StatsStr;
+
 
     private int mWinningTeamId = 0;
 
@@ -103,6 +108,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
             processChampions();
         }
+
     };
 
     @Override
@@ -116,12 +122,15 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         getWindow().getDecorView().setBackground(mainBg);
 
         mBackground = (ImageView) findViewById(R.id.match_background);
+        mLoadingView = (LinearLayout) findViewById(R.id.loadingView);
         mContainerTeam1 = (LinearLayout) findViewById(R.id.team1Container);
         mContainerTeam2 = (LinearLayout) findViewById(R.id.team2Container);
         versusView = (ImageView) findViewById(R.id.versus);
 
         mTeam1StatsView = (TextView) findViewById(R.id.txt_team1Stats);
         mTeam2StatsView = (TextView) findViewById(R.id.txt_team2Stats);
+
+        animateLoading(false);
 
         // start the runnable right away
         mRefreshHandler.postDelayed(getMatchAndDisplay, 0);
@@ -262,6 +271,23 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         }
     }
 
+    private void animateLoading(final boolean in) {
+        float from, to;
+
+        if (in) {
+            mLoadingView.setVisibility(View.VISIBLE);
+            from = 0.0f; to = 1.0f;
+        } else {
+            from = 1.0f; to = 0.0f;
+        }
+
+        AlphaAnimation anim = new AlphaAnimation(from, to);
+        anim.setDuration(750);
+        anim.setFillAfter(true);
+
+        mLoadingView.startAnimation(anim);
+    }
+
     /**
      * animates the versus view in
      */
@@ -389,7 +415,9 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mRefreshHandler.post(getMatchAndDisplay); // get a new match to show once all animations have finished
+                if (mKeepLoading) {
+                    mRefreshHandler.post(getMatchAndDisplay); // get a new match to show once all animations have finished
+                }
             }
 
             @Override
@@ -483,6 +511,28 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     @Override
     public void onAllMatchesProcessed() {
 
+    }
+
+    @Override
+    public void onError() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mKeepLoading = false;
+                AlertDialog.Builder builder = new AlertDialog.Builder(MatchResultsView.this);
+
+                builder.setTitle("Network Error");
+                builder.setMessage("An error has occurred. Please verify you are connected to the internet and try again.");
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+
+                builder.show();
+            }
+        });
     }
 
     @Override

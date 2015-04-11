@@ -79,4 +79,32 @@
         android:layout_height="150dp"
         android:src="@drawable/versus"
         android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/loadingView"
+        android:padding="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/loading_background"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:src="@drawable/ic_launcher"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textSize="32sp"
+            android:textColor="#fbf4bd"
+            android:text="oading..."
+            android:shadowColor="@android:color/black"
+            android:shadowRadius="25" />
+    </LinearLayout>
 </RelativeLayout>
