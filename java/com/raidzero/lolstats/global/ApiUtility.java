@@ -277,6 +277,12 @@ public class ApiUtility {
                         mCallback.onFirstMatchProcessed();
                     }
                 }
+
+                if (mMatches.size() == 1) {
+                    mGoBackInTime = true;
+                    mHandler.post(this);
+                }
+
             }
         }
     };

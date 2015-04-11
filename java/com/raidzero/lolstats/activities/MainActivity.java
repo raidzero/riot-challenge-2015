@@ -56,12 +56,14 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     public void onActivityResult(int resultCode, int requestCode, Intent data) {
         mApiUtility.shutDown();
         finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override
     public void onBackPressed() {
         mApiUtility.shutDown();
         finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override
@@ -75,7 +77,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     }
 
     private void setLoadingScreenDrawable() {
-        int randomNum = new Random().nextInt((4 - 1) + 1) + 1;
+        int randomNum = new Random().nextInt((7 - 1) + 1) + 1;
         try {
             bgDrawable = Drawable.createFromStream(getAssets().open("loading" + randomNum + ".jpg"), null);
             getWindow().getDecorView().setBackground(bgDrawable);

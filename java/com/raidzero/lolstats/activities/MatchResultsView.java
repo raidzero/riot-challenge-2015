@@ -24,6 +24,7 @@ import com.raidzero.lolstats.global.ApiUtility;
 import com.raidzero.lolstats.global.Common;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by raidzero on 4/7/15.
@@ -47,6 +49,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private Match mMatch;
     private int mPortraitsDownloaded;
 
+    private ImageView mBackground;
     private LinearLayout mContainerTeam1, mContainerTeam2;
     private ImageView versusView;
     private TextView mTeam1StatsView, mTeam2StatsView;
@@ -62,12 +65,21 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Drawable portrait = Drawable.createFromPath(location);
+                    Drawable portrait;
+
+                    if (!location.equals("unknown")) {
+                       portrait = Drawable.createFromPath(location);
+                    } else {
+                        portrait = getResources().getDrawable(R.drawable.unknown);
+                    }
+
                     imageView.setImageDrawable(portrait);
                     textView.setText(summonerName);
 
                     if (++mPortraitsDownloaded == 10) {
-                        setBackgroundChampion();
+                        animateTeamsIn();
+                        // reset or else the background will never change again
+                        mPortraitsDownloaded = 0;
                     }
                 }
             });
@@ -90,7 +102,6 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             mContainerTeam2.removeAllViews();
 
             processChampions();
-            mRefreshHandler.postDelayed(this, 10000); // get a new match to show every 10 secs
         }
     };
 
@@ -104,6 +115,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         Drawable mainBg = MainActivity.bgDrawable;
         getWindow().getDecorView().setBackground(mainBg);
 
+        mBackground = (ImageView) findViewById(R.id.match_background);
         mContainerTeam1 = (LinearLayout) findViewById(R.id.team1Container);
         mContainerTeam2 = (LinearLayout) findViewById(R.id.team2Container);
         versusView = (ImageView) findViewById(R.id.versus);
@@ -117,6 +129,9 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
     private void processChampions() {
         Participant[] participants = mMatch.participants;
+
+        mTeam1StatsView.setVisibility(View.GONE);
+        mTeam2StatsView.setVisibility(View.GONE);
 
         // team stats
         int team1Kills = 0; int team1Deaths = 0; int team1Assists = 0;
@@ -217,9 +232,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                         mContainerTeam2.setVisibility(View.VISIBLE);
 
                         Drawable bgImg = Drawable.createFromPath(location);
-                        getWindow().getDecorView().setBackground(bgImg);
-
-                        animateVersus();
+                        mBackground.setImageDrawable(bgImg);
                     }
                 });
             }
@@ -271,7 +284,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    // dont care really
+                    // ignore
                 }
 
                 animateTeamsOut();
@@ -286,6 +299,123 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         versusView.startAnimation(animation);
     }
 
+    /**
+     * animates team containers in from off the screen
+     */
+    private void animateTeamsIn() {
+        int screenWidth = getWindow().getDecorView().getWidth();
+
+        TranslateAnimation animFromRight = new TranslateAnimation(screenWidth, 0, 0, 0);
+        TranslateAnimation animFromLeft = new TranslateAnimation(-screenWidth, 0, 0, 0);
+
+        animFromRight.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                animateVersus();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animFromLeft.setDuration(500);
+        animFromRight.setDuration(500);
+
+        animFromLeft.setFillAfter(true);
+        animFromRight.setFillAfter(true);
+
+        mContainerTeam1.setVisibility(View.VISIBLE);
+        mContainerTeam1.startAnimation(animFromRight);
+
+        mContainerTeam2.setVisibility(View.VISIBLE);
+        mContainerTeam2.startAnimation(animFromLeft);
+    }
+
+    /**
+     * animates team containers off the screen
+     */
+    private void animateTeamsOff() {
+        int screenWidth = getWindow().getDecorView().getWidth();
+
+        TranslateAnimation animOffRight = new TranslateAnimation(0, -screenWidth, -100, -100);
+        TranslateAnimation animOffLeft = new TranslateAnimation(0, screenWidth, 100, 100);
+
+        animOffRight.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Log.d(tag, "animations over");
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animOffLeft.setDuration(500);
+        animOffRight.setDuration(500);
+
+        animOffLeft.setFillAfter(true);
+        animOffRight.setFillAfter(true);
+
+        mContainerTeam1.setVisibility(View.VISIBLE);
+        mContainerTeam1.startAnimation(animOffRight);
+
+        mContainerTeam2.setVisibility(View.VISIBLE);
+        mContainerTeam2.startAnimation(animOffLeft);
+    }
+
+    private void animateBackgroundOut() {
+        AlphaAnimation bgOut = new AlphaAnimation(1.0f, 0.0f);
+        bgOut.setFillAfter(true);
+        bgOut.setDuration(500);
+
+        bgOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mRefreshHandler.post(getMatchAndDisplay); // get a new match to show once all animations have finished
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        mBackground.startAnimation(bgOut);
+    }
+
+    private void animateBackgroundIn() {
+        AlphaAnimation bgOut = new AlphaAnimation(0.0f, 1.0f);
+        bgOut.setFillAfter(true);
+        bgOut.setDuration(2000);
+
+        mBackground.startAnimation(bgOut);
+    }
+
+    private void animateStatsOff() {
+        AlphaAnimation statsAnimation = new AlphaAnimation(1.0f, 0.0f);
+        statsAnimation.setDuration(500);
+        statsAnimation.setFillAfter(true);
+
+        mTeam1StatsView.startAnimation(statsAnimation);
+        mTeam2StatsView.startAnimation(statsAnimation);
+    }
     private void animateTeamsOut() {
         TranslateAnimation animationTop = new TranslateAnimation(0, 0, 0, -100);
         TranslateAnimation animationBottom = new TranslateAnimation(0, 0, 0, 100);
@@ -301,6 +431,33 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         statsAnimation.setDuration(2000);
         statsAnimation.setFillAfter(true);
 
+        statsAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                setBackgroundChampion();
+                animateBackgroundIn();
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                setLoadingScreenDrawable();
+
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    // dont care
+                }
+
+                animateBackgroundOut();
+                animateTeamsOff();
+                animateStatsOff();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
         versusAnimation.setDuration(250);
         versusAnimation.setFillAfter(true);
 
@@ -331,6 +488,18 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     @Override
     public void onBackPressed() {
         finish();
+    }
+
+    private void setLoadingScreenDrawable() {
+        int randomNum = new Random().nextInt((7 - 1) + 1) + 1;
+        Log.d(tag, "setting random background image");
+
+        try {
+            Drawable bgDrawable = Drawable.createFromStream(getAssets().open("loading" + randomNum + ".jpg"), null);
+            getWindow().getDecorView().setBackground(bgDrawable);
+        } catch (IOException e) {
+            Log.e(tag, e.getMessage());
+        }
     }
 
     /**
@@ -390,12 +559,12 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                     }
 
                     return mDownloadedFile.getPath();
-
-                } catch (IOException e) {
+                } catch (FileNotFoundException e) {
+                    return "unknown";
+                } catch (Exception e) {
                     e.printStackTrace();
+                    return null;
                 }
-
-                return null;
             } else {
                 // already have this file.
                 return mDownloadedFile.getPath();
