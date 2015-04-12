@@ -60,8 +60,13 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private boolean mKeepLoading = true;
     private String mTeam1StatsStr, mTeam2StatsStr;
 
-
     private int mWinningTeamId = 0;
+
+    // mvp stat views
+    private LinearLayout mMvpView;
+    private TextView mvpName, mvpKda, mvpFirstBlood, mvpTowerKills, mvpInhibitorKills,
+            mvpDamage, mvpKillingSpree, mvpDoubleKills, mvpTripleKills, mvpQuadraKills, mvpPentaKills,
+            mvpGoldEarned, mvpGoldSpent;
 
     private ImageDownloadListener mImageDownloadListener = new ImageDownloadListener() {
         @Override
@@ -73,7 +78,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                     Drawable portrait;
 
                     if (!location.equals("unknown")) {
-                       portrait = Drawable.createFromPath(location);
+                        portrait = Drawable.createFromPath(location);
                     } else {
                         portrait = getResources().getDrawable(R.drawable.unknown);
                     }
@@ -125,6 +130,23 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         mTeam1StatsView = (TextView) findViewById(R.id.txt_team1Stats);
         mTeam2StatsView = (TextView) findViewById(R.id.txt_team2Stats);
+
+        // mvp views
+        mMvpView = (LinearLayout) findViewById(R.id.mvpContainer);
+        mvpName = (TextView) findViewById(R.id.mvp_name);
+        mvpKda = (TextView) findViewById(R.id.mvp_kda);
+        mvpFirstBlood = (TextView) findViewById(R.id.mvp_firstBloodView);
+        mvpTowerKills = (TextView) findViewById(R.id.mvp_towerKillView);
+        mvpInhibitorKills = (TextView) findViewById(R.id.mvp_inhibitorKillView);
+        mvpDamage = (TextView) findViewById(R.id.mvp_damageView);
+        mvpKillingSpree = (TextView) findViewById(R.id.mvp_killingSpreeView);
+        mvpDoubleKills = (TextView) findViewById(R.id.mvp_doubleKillView);
+        mvpTripleKills = (TextView) findViewById(R.id.mvp_tripleKillView);
+        mvpQuadraKills = (TextView) findViewById(R.id.mvp_quadraKillView);
+        mvpPentaKills = (TextView) findViewById(R.id.mvp_pentaKillView);
+        mvpGoldEarned = (TextView) findViewById(R.id.mvp_goldEarnedView);
+        mvpGoldSpent = (TextView) findViewById(R.id.mvp_goldSpentView);
+
 
         animateLoading(false);
 
@@ -244,15 +266,60 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         };
 
         Champion winningChampion = null;
-
+        Participant mvp = null;
         for (int i = participants.size() - 1; i >= 0; i--) {
             if (participants.get(i).winningTeam) {
+                mvp = participants.get(i);
                 winningChampion = participants.get(i).champion;
                 break;
             }
         }
 
+        if (mvp != null) {
+            // fill in the mvp view with these stats
+            mvpName.setText(
+                    String.format("%s, %s",
+                            winningChampion.name, winningChampion.title));
+            mvpKda.setText(
+                    String.format(getResources().getString(R.string.mvp_kda),
+                            mvp.totalKills, mvp.deaths, mvp.assists));
+            mvpFirstBlood.setText(
+                    String.format(getResources().getString(R.string.mvp_firstBlood),
+                            mvp.firstBlood));
+            mvpTowerKills.setText(
+                    String.format(getResources().getString(R.string.mvp_towerKills),
+                            mvp.towerKills));
+            mvpInhibitorKills.setText(
+                    String.format(getResources().getString(R.string.mvp_inhibitorKills),
+                            mvp.inhibitorKills));
+            mvpDamage.setText(
+                    String.format(getResources().getString(R.string.mvp_damageView),
+                            mvp.damageDealt, mvp.damageTaken));
+            mvpKillingSpree.setText(
+                    String.format(getResources().getString(R.string.mvp_largestKillingSpree),
+                            mvp.inhibitorKills));
+            mvpDoubleKills.setText(
+                    String.format(getResources().getString(R.string.mvp_doubleKills),
+                            mvp.doubleKills));
+            mvpTripleKills.setText(
+                    String.format(getResources().getString(R.string.mvp_tripleKills),
+                            mvp.tripleKills));
+            mvpQuadraKills.setText(
+                    String.format(getResources().getString(R.string.mvp_quadraKills),
+                            mvp.quadraKills));
+            mvpPentaKills.setText(
+                    String.format(getResources().getString(R.string.mvp_pentaKills),
+                            mvp.pentaKills));
+            mvpGoldEarned.setText(
+                    String.format(getResources().getString(R.string.mvp_goldEarned),
+                            mvp.goldEarned));
+            mvpGoldSpent.setText(
+                    String.format(getResources().getString(R.string.mvp_goldSpent),
+                            mvp.goldSpent));
+        }
+
         if (winningChampion != null) {
+
             // start an asynctask to download & display this image
             Log.d(tag, "winning summoner: " + winningChampion.name);
 
@@ -266,7 +333,6 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             // something wrong with the matrix. every game has a winner
         }
     }
-
     private void animateLoading(final boolean in) {
         float from, to;
 

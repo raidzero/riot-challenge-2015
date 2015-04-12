@@ -89,7 +89,8 @@
         android:layout_width="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/loading_background"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        tools:visibility="visible">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -103,8 +104,130 @@
             android:layout_gravity="bottom"
             android:textSize="32sp"
             android:textColor="#fbf4bd"
-            android:text="oading..."
+            android:text="@string/loading_end"
             android:shadowColor="@android:color/black"
             android:shadowRadius="25" />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mvpContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/loading_background"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:text="@string/mvp_title"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/mvp_name"
+            tools:text="Sivir the Battle Mistress"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_kda"
+            tools:text="Kills: 14, Deaths: 5, Assists: 20"
+            android:textStyle="bold|italic"
+            android:textSize="18sp"
+            android:textColor="#00ff00"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"/>
+
+        <TextView
+            android:id="@+id/mvp_firstBloodView"
+            tools:text="First Blood: No"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/mvp_towerKillView"
+            tools:text="Tower Kills: 3"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_inhibitorKillView"
+            tools:text="Inhibitor Kills: 0"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_damageView"
+            tools:text="Damage Dealt: 228127, Taken: 43662"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_killingSpreeView"
+            tools:text="Largest Killing Spree: 5"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_doubleKillView"
+            tools:text="Double Kills: 1"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_tripleKillView"
+            tools:text="Triple Kills: 1"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_quadraKillView"
+            tools:text="Quadra Kills: 0"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_pentaKillView"
+            tools:text="Penta Kills: 1"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_goldEarnedView"
+            tools:text="Gold Earned: 21112"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_goldSpentView"
+            tools:text="Gold Spent: 19151"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
 </RelativeLayout>

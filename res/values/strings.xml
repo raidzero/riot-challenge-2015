@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">LoLStats</string>
+
+    <string name="loading_end">oading&#8230;</string>
+    <!-- MVP view -->
+    <string name="mvp_title">Deadliest Champion:</string>
+    <string name="mvp_kda">Kills: %1$d, Deaths: %2$d, Assists: %3$d</string>
+    <string name="mvp_firstBlood">First Blood: %1$b</string>
+    <string name="mvp_towerKills">Tower Kills: %1$d</string>
+    <string name="mvp_inhibitorKills">Inhibitor Kills: %1$d</string>
+    <string name="mvp_damageView">Damage Dealt: %1$d, Damage Taken: %2$d</string>
+    <string name="mvp_largestKillingSpree">Largest Killing Spree: %1$d</string>
+    <string name="mvp_doubleKills">Double Kills: %1$d</string>
+    <string name="mvp_tripleKills">Triple Kills: %1$d</string>
+    <string name="mvp_quadraKills">Quadra Kills: %1$d</string>
+    <string name="mvp_pentaKills">Penta Kills: %1$d</string>
+    <string name="mvp_goldEarned">Gold Earned: %1$d</string>
+    <string name="mvp_goldSpent">Gold Spent: %1$d</string>
+
 </resources>

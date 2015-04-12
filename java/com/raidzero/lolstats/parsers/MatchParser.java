@@ -54,6 +54,17 @@ public class MatchParser extends JSONParser {
                 p.deaths = statsObj.getInt("deaths");
                 p.assists = statsObj.getInt("assists");
 
+                p.firstBlood = statsObj.getBoolean("firstBloodKill");
+                p.largestMultiKill = statsObj.getInt("largestMultiKill");
+                p.largestKillingSpree = statsObj.getInt("largestKillingSpree");
+                p.goldEarned = statsObj.getInt("goldEarned");
+                p.goldSpent = statsObj.getInt("goldSpent");
+                p.damageTaken = statsObj.getInt("totalDamageTaken");
+                p.damageDealt = statsObj.getInt("totalDamageDealt");
+
+                p.towerKills = statsObj.getInt("towerKills");
+                p.inhibitorKills = statsObj.getInt("inhibitorKills");
+
                 // winning team?
                 p.winningTeam = statsObj.getBoolean("winner");
 
