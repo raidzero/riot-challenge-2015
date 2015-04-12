@@ -22,6 +22,7 @@ import com.raidzero.lolstats.R;
 import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
 import com.raidzero.lolstats.data.Participant;
+import com.raidzero.lolstats.global.AnimationUtility;
 import com.raidzero.lolstats.global.ApiUtility;
 import com.raidzero.lolstats.global.Common;
 
@@ -40,7 +41,7 @@ import java.util.Random;
 /**
  * Created by raidzero on 4/7/15.
  */
-public class MatchResultsView extends Activity implements ApiUtility.ApiCallback {
+public class MatchResultsView extends Activity implements ApiUtility.ApiCallback, Animation.AnimationListener {
     private static final String tag = "MatchResultsView";
 
     private Handler mRefreshHandler = new Handler();
@@ -54,13 +55,24 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private ImageView mBackground;
     private LinearLayout mLoadingView;
     private LinearLayout mContainerTeam1, mContainerTeam2;
-    private ImageView versusView;
+    private ImageView mVersusView;
     private TextView mTeam1StatsView, mTeam2StatsView;
 
     private boolean mKeepLoading = true;
     private String mTeam1StatsStr, mTeam2StatsStr;
 
     private int mWinningTeamId = 0;
+
+    // view dimensions
+    private int mScreenHeight, mScreenWidth;
+
+    // animations
+    private TranslateAnimation mAnimTeam1In, mAnimTeam2In, mAnimTeam1Out , mAnimTeam2Out;
+    private TranslateAnimation mAnimTeam1Up, mAnimTeam2Down;
+    private TranslateAnimation mAnimMvpIn, mAnimMvpOut;
+    private ScaleAnimation mAnimVersusIn, mAnimVersusOut;
+    private AlphaAnimation mAnimStatsIn, mAnimStatsOut;
+    private AlphaAnimation mAnimBgIn, mAnimBgOut;
 
     // mvp stat views
     private LinearLayout mMvpView;
@@ -87,7 +99,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                     textView.setText(summonerName);
 
                     if (++mPortraitsDownloaded == 10) {
-                        animateTeamsIn();
+                        animateTeamsInOut(true);
+
                         // reset or else the background will never change again
                         mPortraitsDownloaded = 0;
                     }
@@ -126,7 +139,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         mLoadingView = (LinearLayout) findViewById(R.id.loadingView);
         mContainerTeam1 = (LinearLayout) findViewById(R.id.team1Container);
         mContainerTeam2 = (LinearLayout) findViewById(R.id.team2Container);
-        versusView = (ImageView) findViewById(R.id.versus);
+        mVersusView = (ImageView) findViewById(R.id.versus);
 
         mTeam1StatsView = (TextView) findViewById(R.id.txt_team1Stats);
         mTeam2StatsView = (TextView) findViewById(R.id.txt_team2Stats);
@@ -146,7 +159,45 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         mvpPentaKills = (TextView) findViewById(R.id.mvp_pentaKillView);
         mvpGoldEarned = (TextView) findViewById(R.id.mvp_goldEarnedView);
         mvpGoldSpent = (TextView) findViewById(R.id.mvp_goldSpentView);
+    }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        mScreenWidth = getWindow().getDecorView().getWidth();
+        mScreenHeight = getWindow().getDecorView().getHeight();
+
+        /**
+         * make animations
+         */
+        // teams in - 500ms
+        mAnimTeam1In = AnimationUtility.getTranslation(mScreenWidth, 0, 0, 0, 500, this);
+        mAnimTeam2In = AnimationUtility.getTranslation(-mScreenWidth, 0, 0, 0, 500, this);
+
+        // versus in/out - 400/250ms
+        mAnimVersusIn = AnimationUtility.getScale(3.0f, 1.0f, 3.0f, 1.0f, 400, this);
+        mAnimVersusOut = AnimationUtility.getScale(1.0f, 0.0f, 1.0f, 0.0f, 250, this);
+
+        // teams up/down - 250ms
+        mAnimTeam1Up = AnimationUtility.getTranslation(0, 0, 0, -100, 250, this);
+        mAnimTeam2Down = AnimationUtility.getTranslation(0, 0, 0, 100, 250, this);
+
+        // stats in - 2000ms
+        mAnimStatsIn = AnimationUtility.getAlpha(0.0f, 1.0f, 2000, this);
+        mAnimStatsOut = AnimationUtility.getAlpha(1.0f, 0.0f, 2000, this);
+
+        // teams out - 500ms
+        mAnimTeam1Out = AnimationUtility.getTranslation(0, -mScreenWidth, -100, -100, 500, this);
+        mAnimTeam2Out = AnimationUtility.getTranslation(0, mScreenWidth, 100, 100, 500, this);
+
+        // mvp in/out
+        mAnimMvpIn = AnimationUtility.getTranslation(0, 0, mScreenHeight, 0, 500, this);
+        mAnimMvpOut = AnimationUtility.getTranslation(0, 0, 0, -mScreenHeight, 500, this);
+
+        // bg in/out = 2000/500ms
+        mAnimBgIn = AnimationUtility.getAlpha(0.0f, 1.0f, 2000, this);
+        mAnimBgOut = AnimationUtility.getAlpha(1.0f, 0.0f, 500, this);
 
         animateLoading(false);
 
@@ -333,237 +384,6 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             // something wrong with the matrix. every game has a winner
         }
     }
-    private void animateLoading(final boolean in) {
-        float from, to;
-
-        if (in) {
-            mLoadingView.setVisibility(View.VISIBLE);
-            from = 0.0f; to = 1.0f;
-        } else {
-            from = 1.0f; to = 0.0f;
-        }
-
-        AlphaAnimation anim = new AlphaAnimation(from, to);
-        anim.setDuration(750);
-        anim.setFillAfter(true);
-
-        mLoadingView.startAnimation(anim);
-    }
-
-    /**
-     * animates the versus view in
-     */
-    private void animateVersus() {
-        versusView.setVisibility(View.VISIBLE);
-
-        ScaleAnimation animation = new ScaleAnimation(3.0f, 1.0f, 3.0f, 1.0f,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        animation.setDuration(400);
-
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-
-                animateTeamsOut();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        versusView.startAnimation(animation);
-    }
-
-    /**
-     * animates team containers in from off the screen
-     */
-    private void animateTeamsIn() {
-        int screenWidth = getWindow().getDecorView().getWidth();
-
-        TranslateAnimation animFromRight = new TranslateAnimation(screenWidth, 0, 0, 0);
-        TranslateAnimation animFromLeft = new TranslateAnimation(-screenWidth, 0, 0, 0);
-
-        animFromRight.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                animateVersus();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        animFromLeft.setDuration(500);
-        animFromRight.setDuration(500);
-
-        animFromLeft.setFillAfter(true);
-        animFromRight.setFillAfter(true);
-
-        mContainerTeam1.setVisibility(View.VISIBLE);
-        mContainerTeam1.startAnimation(animFromRight);
-
-        mContainerTeam2.setVisibility(View.VISIBLE);
-        mContainerTeam2.startAnimation(animFromLeft);
-    }
-
-    /**
-     * animates team containers off the screen
-     */
-    private void animateTeamsOff() {
-        int screenWidth = getWindow().getDecorView().getWidth();
-
-        TranslateAnimation animOffRight = new TranslateAnimation(0, -screenWidth, -100, -100);
-        TranslateAnimation animOffLeft = new TranslateAnimation(0, screenWidth, 100, 100);
-
-        animOffRight.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                Log.d(tag, "animations over");
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        animOffLeft.setDuration(500);
-        animOffRight.setDuration(500);
-
-        animOffLeft.setFillAfter(true);
-        animOffRight.setFillAfter(true);
-
-        mContainerTeam1.setVisibility(View.VISIBLE);
-        mContainerTeam1.startAnimation(animOffRight);
-
-        mContainerTeam2.setVisibility(View.VISIBLE);
-        mContainerTeam2.startAnimation(animOffLeft);
-    }
-
-    private void animateBackgroundOut() {
-        AlphaAnimation bgOut = new AlphaAnimation(1.0f, 0.0f);
-        bgOut.setFillAfter(true);
-        bgOut.setDuration(500);
-
-        bgOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (mKeepLoading) {
-                    mRefreshHandler.post(getMatchAndDisplay); // get a new match to show once all animations have finished
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        mBackground.startAnimation(bgOut);
-    }
-
-    private void animateBackgroundIn() {
-        AlphaAnimation bgOut = new AlphaAnimation(0.0f, 1.0f);
-        bgOut.setFillAfter(true);
-        bgOut.setDuration(2000);
-
-        mBackground.startAnimation(bgOut);
-    }
-
-    private void animateStatsOff() {
-        AlphaAnimation statsAnimation = new AlphaAnimation(1.0f, 0.0f);
-        statsAnimation.setDuration(500);
-        statsAnimation.setFillAfter(true);
-
-        mTeam1StatsView.startAnimation(statsAnimation);
-        mTeam2StatsView.startAnimation(statsAnimation);
-    }
-    private void animateTeamsOut() {
-        TranslateAnimation animationTop = new TranslateAnimation(0, 0, 0, -100);
-        TranslateAnimation animationBottom = new TranslateAnimation(0, 0, 0, 100);
-
-        ScaleAnimation versusAnimation = new ScaleAnimation(1.0f, 0.0f, 1.0f, 0.0f,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-
-        mTeam1StatsView.setVisibility(View.VISIBLE);
-        mTeam2StatsView.setVisibility(View.VISIBLE);
-
-        AlphaAnimation statsAnimation = new AlphaAnimation(0.0f, 1.0f);
-        statsAnimation.setDuration(2000);
-        statsAnimation.setFillAfter(true);
-
-        statsAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                setBackgroundChampion();
-                animateBackgroundIn();
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                setLoadingScreenDrawable();
-
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    // dont care
-                }
-
-                animateBackgroundOut();
-                animateTeamsOff();
-                animateStatsOff();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        versusAnimation.setDuration(250);
-        versusAnimation.setFillAfter(true);
-
-        animationBottom.setDuration(250);
-        animationTop.setDuration(250);
-
-        versusView.startAnimation(versusAnimation);
-        animationBottom.setFillAfter(true);
-        animationTop.setFillAfter(true);
-
-        mTeam1StatsView.startAnimation(statsAnimation);
-        mTeam2StatsView.startAnimation(statsAnimation);
-
-        mContainerTeam1.startAnimation(animationTop);
-        mContainerTeam2.startAnimation(animationBottom);
-    }
 
     @Override
     public void onFirstMatchProcessed() {
@@ -612,6 +432,149 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         } catch (IOException e) {
             Log.e(tag, e.getMessage());
         }
+    }
+
+    /**
+     * animation listener callbacks
+     */
+    @Override
+    public void onAnimationStart(Animation animation) {
+        // never used
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        if (animation == mAnimTeam1In) {
+            // start versus animation
+            animateVersusInOut(true);
+        }
+
+        if (animation == mAnimVersusIn) {
+            // start teams up animation
+            animateTeamsUp();
+            animateVersusInOut(false);
+        }
+
+        if (animation == mAnimVersusOut) {
+            // start stats in animation
+            animateStatsInOut(true);
+        }
+
+        if (animation == mAnimStatsIn) {
+            setBackgroundChampion();
+            // fade out stats while sliding out teams and fading in new background
+            animateStatsInOut(false);
+            animateBgInOut(true);
+        }
+
+        if (animation == mAnimStatsOut) {
+            mTeam1StatsView.setVisibility(View.GONE);
+            mTeam2StatsView.setVisibility(View.GONE);
+        }
+
+        if (animation == mAnimBgIn) {
+            animateTeamsInOut(false);
+            animateMvpInOut(true);
+            setLoadingScreenDrawable();
+        }
+
+        if (animation == mAnimMvpIn) {
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {}
+
+            animateMvpInOut(false);
+            animateBgInOut(false);
+        }
+
+        if (animation == mAnimMvpOut) {
+            if (mKeepLoading) {
+                mRefreshHandler.post(getMatchAndDisplay);
+            }
+        }
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+        // never used
+    }
+
+    /**
+     * animation helpers
+     */
+    private void animateTeamsInOut(boolean in) {
+        mContainerTeam1.setVisibility(View.VISIBLE);
+        mContainerTeam2.setVisibility(View.VISIBLE);
+
+        if (in) {
+            mContainerTeam1.startAnimation(mAnimTeam1In);
+            mContainerTeam2.startAnimation(mAnimTeam2In);
+        } else {
+            mContainerTeam1.startAnimation(mAnimTeam1Out);
+            mContainerTeam2.startAnimation(mAnimTeam2Out);
+        }
+    }
+
+    private void animateTeamsUp() {
+        mContainerTeam1.startAnimation(mAnimTeam1Up);
+        mContainerTeam2.startAnimation(mAnimTeam2Down);
+    }
+
+    private void animateVersusInOut(boolean in) {
+        if (in) {
+            mVersusView.setVisibility(View.VISIBLE);
+            mVersusView.startAnimation(mAnimVersusIn);
+        } else {
+            mVersusView.startAnimation(mAnimVersusOut);
+        }
+    }
+
+    private void animateStatsInOut(boolean in) {
+        if (in) {
+            mTeam1StatsView.setVisibility(View.VISIBLE);
+            mTeam2StatsView.setVisibility(View.VISIBLE);
+
+            mTeam1StatsView.startAnimation(mAnimStatsIn);
+            mTeam2StatsView.startAnimation(mAnimStatsIn);
+        } else {
+            mTeam1StatsView.startAnimation(mAnimStatsOut);
+            mTeam2StatsView.startAnimation(mAnimStatsOut);
+        }
+    }
+
+    private void animateBgInOut(boolean in) {
+        mBackground.setVisibility(View.VISIBLE);
+        if (in) {
+            mBackground.startAnimation(mAnimBgIn);
+        } else {
+            mBackground.startAnimation(mAnimBgOut);
+        }
+    }
+
+    private void animateMvpInOut(boolean in) {
+        if (in) {
+            mMvpView.setVisibility(View.VISIBLE);
+            mMvpView.startAnimation(mAnimMvpIn);
+        } else {
+            mMvpView.startAnimation(mAnimMvpOut);
+        }
+    }
+
+    private void animateLoading(final boolean in) {
+        float from, to;
+
+        if (in) {
+            mLoadingView.setVisibility(View.VISIBLE);
+            from = 0.0f; to = 1.0f;
+        } else {
+            from = 1.0f; to = 0.0f;
+        }
+
+        AlphaAnimation anim = new AlphaAnimation(from, to);
+        anim.setDuration(750);
+        anim.setFillAfter(true);
+
+        mLoadingView.startAnimation(anim);
     }
 
     /**
