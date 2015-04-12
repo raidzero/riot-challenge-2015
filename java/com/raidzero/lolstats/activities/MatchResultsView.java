@@ -96,10 +96,6 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         public void run() {
             mMatch = mApiUtility.getNextMatch();
 
-            if (mMatch == null) {
-
-            }
-
             mChampionsTeam1.clear();
             mChampionsTeam2.clear();
 

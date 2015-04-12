@@ -1,10 +1,16 @@
 package com.raidzero.lolstats.global;
 
+import com.raidzero.lolstats.BuildConfig;
+
 /**
  * Created by posborn on 3/31/15.
  */
 public class Common {
-    public static final String API_KEY = "fd2cabac-cd1d-4d80-b3cf-afee646d2283";
+
+    // old api key is no longer valid. Should not keep api keys in codebase.
+    public static String getApiKey() {
+        return BuildConfig.API_KEY;
+    }
 
     // static list of 5 match ID's. this will be replaced with random match ID's.
     public static final int[] MATCH_IDS = { 1749315593, 1750322945, 1751326160, 1751406221, 1755642247 };

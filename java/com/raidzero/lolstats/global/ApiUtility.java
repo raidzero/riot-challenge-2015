@@ -185,7 +185,7 @@ public class ApiUtility {
 
             String requestUrlStr =
                     Common.API_PREFIX + Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
-                            "&api_key=" + Common.API_KEY;
+                            "&api_key=" + Common.getApiKey();
 
             String response = restRequest(requestUrlStr);
 
@@ -219,7 +219,7 @@ public class ApiUtility {
         @Override
         public void run() {
             String requestUrlStr =
-                    Common.API_PREFIX + Common.MATCH_PATH + mMatchId + "?api_key=" + Common.API_KEY;
+                    Common.API_PREFIX + Common.MATCH_PATH + mMatchId + "?api_key=" + Common.getApiKey();
 
             String response = restRequest(requestUrlStr);
 
@@ -233,7 +233,7 @@ public class ApiUtility {
                         int championId = m.participants[i].champion.id;
                         String champReponse =
                                 restRequest(Common.API_PREFIX + Common.CHAMPION_PATH + championId +
-                                "?api_key=" + Common.API_KEY);
+                                "?api_key=" + Common.getApiKey());
                         ChampionParser champParser = new ChampionParser(champReponse);
 
                         Champion c = champParser.getChampionFromParser();
@@ -283,7 +283,6 @@ public class ApiUtility {
                     mGoBackInTime = true;
                     mHandler.post(this);
                 }
-
             }
         }
     };
@@ -292,7 +291,7 @@ public class ApiUtility {
         @Override
         public void run() {
             mTestApiReponse = restRequest(Common.API_PREFIX + Common.CHAMPION_PATH + 1 +
-                    "?api_key=" + Common.API_KEY);
+                    "?api_key=" + Common.getApiKey());
         }
     };
 
