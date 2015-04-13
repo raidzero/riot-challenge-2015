@@ -32,6 +32,18 @@
         tools:visibility="visible">
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/team2Container"
+        android:orientation="horizontal"
+        android:layout_below="@id/centerMarker"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+    </LinearLayout>
+
     <TextView
         android:id="@+id/txt_team1Stats"
         android:textStyle="bold"
@@ -45,18 +57,6 @@
         android:shadowColor="@android:color/black"
         android:shadowRadius="25"
         />
-
-    <LinearLayout
-        android:id="@+id/team2Container"
-        android:orientation="horizontal"
-        android:layout_below="@id/centerMarker"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:visibility="visible">
-    </LinearLayout>
 
     <TextView
         android:id="@+id/txt_team2Stats"

@@ -75,6 +75,7 @@ public class ApiUtility {
     private void startThreadAndWait(Runnable r) throws InterruptedException
     {
         Thread t = new Thread(r);
+        t.setPriority(Thread.MIN_PRIORITY);
 
         mRunningThreads.add(t);
 
@@ -306,6 +307,7 @@ public class ApiUtility {
 
         if (!mTestApiReponse.isEmpty()) {
             Thread t = new Thread(startProcessingRunnable);
+            t.setPriority(Thread.MIN_PRIORITY);
             mRunningThreads.add(t);
             t.start();
         } else {

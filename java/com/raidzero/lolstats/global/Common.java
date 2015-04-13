@@ -12,6 +12,15 @@ public class Common {
         return BuildConfig.API_KEY;
     }
 
+    // converts bool to "Yes", "No"
+    public static String bool2str(boolean b) {
+        if (b) {
+            return "Yes";
+        } else {
+            return "No";
+        }
+    }
+
     // static list of 5 match ID's. this will be replaced with random match ID's.
     public static final int[] MATCH_IDS = { 1749315593, 1750322945, 1751326160, 1751406221, 1755642247 };
 

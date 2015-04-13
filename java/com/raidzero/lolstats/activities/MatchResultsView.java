@@ -245,7 +245,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         mTeam1StatsStr = String.format("%d/%d/%d", team1Kills, team1Deaths, team1Assists);
         mTeam2StatsStr = String.format("%d/%d/%d", team2Kills, team2Deaths, team2Assists);
 
-        if (mWinningTeamId == 100) {
+        if (mWinningTeamId == 200) {
             mTeam1StatsView.setTextColor(Color.GREEN);
             mTeam2StatsView.setTextColor(Color.RED);
         } else {
@@ -336,7 +336,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                             mvp.totalKills, mvp.deaths, mvp.assists));
             mvpFirstBlood.setText(
                     String.format(getResources().getString(R.string.mvp_firstBlood),
-                            mvp.firstBlood));
+                            Common.bool2str(mvp.firstBlood)));
             mvpTowerKills.setText(
                     String.format(getResources().getString(R.string.mvp_towerKills),
                             mvp.towerKills));
