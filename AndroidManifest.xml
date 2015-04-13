@@ -21,6 +21,8 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
 
+        <activity android:name=".activities.SettingsActivity" />
+
         <service
             android:name=".services.DayDream"
             android:exported="true"

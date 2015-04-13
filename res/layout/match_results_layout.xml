@@ -12,6 +12,17 @@
         android:scaleType="fitXY"
         />
 
+    <ImageView
+        android:id="@+id/settings_button"
+        android:src="@drawable/settings"
+        android:padding="3dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:onClick="onSettingsClick" />
+
     <View
         android:id="@+id/centerMarker"
         android:layout_width="match_parent"
@@ -46,30 +57,19 @@
 
     <TextView
         android:id="@+id/txt_team1Stats"
-        android:textStyle="bold"
-        android:textSize="28sp"
+        style="@style/TeamStats"
         android:paddingTop="5dp"
-        android:layout_centerHorizontal="true"
         android:layout_below="@id/team1Container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:visibility="gone"
-        android:shadowColor="@android:color/black"
-        android:shadowRadius="25"
+
         />
 
     <TextView
         android:id="@+id/txt_team2Stats"
-        android:textStyle="bold"
-        android:textSize="28sp"
+        style="@style/TeamStats"
         android:paddingBottom="5dp"
-        android:layout_centerHorizontal="true"
         android:layout_above="@id/team2Container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:visibility="gone"
-        android:shadowColor="@android:color/black"
-        android:shadowRadius="25"
         />
 
     <ImageView
@@ -155,78 +155,52 @@
         <TextView
             android:id="@+id/mvp_firstBloodView"
             tools:text="First Blood: No"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
+
         <TextView
             android:id="@+id/mvp_towerKillView"
             tools:text="Tower Kills: 3"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_inhibitorKillView"
             tools:text="Inhibitor Kills: 0"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_damageView"
-            tools:text="Damage Dealt: 228127, Taken: 43662"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            tools:text="Damage Dealt: 228,127, Taken: 43,662"
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_killingSpreeView"
             tools:text="Largest Killing Spree: 5"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_doubleKillView"
             tools:text="Double Kills: 1"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_tripleKillView"
             tools:text="Triple Kills: 1"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_quadraKillView"
             tools:text="Quadra Kills: 0"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
             android:id="@+id/mvp_pentaKillView"
             tools:text="Penta Kills: 1"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/MvpStats" />
 
         <TextView
-            android:id="@+id/mvp_goldEarnedView"
-            tools:text="Gold Earned: 21112"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/mvp_goldSpentView"
-            tools:text="Gold Spent: 19151"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:id="@+id/mvp_goldView"
+            tools:text="Gold Earned: 21,112, Spent: 12,000"
+            style="@style/MvpStats" />
 
     </LinearLayout>
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.raidzero.lolstats.data.NumberPickerPreference
+        android:key="pref_mvp_delay"
+        android:defaultValue="4"
+        android:title="@string/pref_mvp_delay_title"
+        android:summary="@string/pref_mvp_display_summary" />
+</PreferenceScreen>

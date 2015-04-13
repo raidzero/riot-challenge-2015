@@ -1,6 +1,5 @@
 package com.raidzero.lolstats.global;
 
-import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -20,7 +19,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -42,7 +40,7 @@ public class ApiUtility {
     private Stack<Long> mMatchIds = new Stack<>();
     private Stack<Match> mMatches = new Stack<>();
 
-    private boolean mGoBackInTime;
+    private int mGoBackInTime = 0;
     // list of running threads
     private ArrayList<Thread> mRunningThreads = new ArrayList<>();
 
@@ -68,7 +66,6 @@ public class ApiUtility {
 
         return instance;
     }
-
     /**
      * starts a thread given a runnable, and waits for it to finish
      */
@@ -81,6 +78,17 @@ public class ApiUtility {
 
         t.start();
         t.join();
+    }
+
+
+    private void startThread(Runnable r) throws InterruptedException
+    {
+        Thread t = new Thread(r);
+        t.setPriority(Thread.MIN_PRIORITY);
+
+        mRunningThreads.add(t);
+
+        t.start();
     }
 
     /**
@@ -164,7 +172,7 @@ public class ApiUtility {
 
         if (mMatches.size() == 2) {
             // matches are getting low. better get some more
-            mGoBackInTime = true;
+            mGoBackInTime += 5; // go back another five minutes
             startProcessing();
         }
 
@@ -179,10 +187,13 @@ public class ApiUtility {
         public void run() {
             long timestamp = DateUtility.getTimestamp();
 
-            if (mGoBackInTime) {
-                Log.d(tag, "Going back in time");
-                timestamp -= 300; // 5 minutes in seconds
+            if (mGoBackInTime > 0) {
+                Log.d(tag, "Going back in time (" + mGoBackInTime + " minutes)");
             }
+
+            timestamp -= mGoBackInTime * 60; // minutes in seconds
+
+            Log.d(tag, "timestamp: " + timestamp);
 
             String requestUrlStr =
                     Common.API_PREFIX + Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
@@ -203,6 +214,9 @@ public class ApiUtility {
                 } catch (JSONException e) {
                     return;
                 }
+            } else {
+                mCallback.onError();
+                shutDown();
             }
         }
     };
@@ -262,56 +276,52 @@ public class ApiUtility {
 
             }
 
-            Log.d(tag, "Processing matches.");
             if (!mMatchIds.isEmpty()) {
+                Log.d(tag, "Processing matches.");
                 Log.d(tag, "got " + mMatchIds.size() + " matches");
 
-                for (long matchId = getNextMatchId();
-                     mMatchIds.size() > 0; matchId = getNextMatchId()) {
+                if (!mMatchIds.isEmpty()) {
+                    for (long matchId = getNextMatchId();
+                         mMatchIds.size() > 0; matchId = getNextMatchId()) {
 
-                    try {
-                        startThreadAndWait(new GetMatchRunnable(matchId));
-                    } catch (InterruptedException e) {
-                        return;
-                    }
+                        try {
+                            startThreadAndWait(new GetMatchRunnable(matchId));
+                        } catch (InterruptedException e) {
+                            return;
+                        }
 
-                    if (mMatches.size() == 1) {
-                        mCallback.onFirstMatchProcessed();
+                        if (mMatches.size() == 1) {
+                            mCallback.onFirstMatchProcessed();
+                        }
                     }
                 }
 
                 if (mMatches.size() == 1) {
-                    mGoBackInTime = true;
+                    // only one returned. get some more just to be on the safe side
+                    mGoBackInTime += 5;
                     mHandler.post(this);
                 }
-            }
-        }
-    };
+            } else {
+                // no matches. go back in time, after waiting a second so as not to exceed the rate limit
+                mCallback.onGoBackInTime();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
 
-    private Runnable testApiRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mTestApiReponse = restRequest(Common.API_PREFIX + Common.CHAMPION_PATH + 1 +
-                    "?api_key=" + Common.getApiKey());
+                }
+                Log.d(tag, "No matches found.");
+                mGoBackInTime += 5;
+                mHandler.post(this);
+            }
         }
     };
 
     // starts the whole shebang
     public void startProcessing() {
-
         try {
-            startThreadAndWait(testApiRunnable);
+            startThread(startProcessingRunnable);
         } catch (InterruptedException e) {
-            mCallback.onError();
-        }
-
-        if (!mTestApiReponse.isEmpty()) {
-            Thread t = new Thread(startProcessingRunnable);
-            t.setPriority(Thread.MIN_PRIORITY);
-            mRunningThreads.add(t);
-            t.start();
-        } else {
-            mCallback.onError();
+            shutDown();
         }
     }
 
@@ -327,6 +337,7 @@ public class ApiUtility {
      * callback interface
      */
     public interface ApiCallback {
+        void onGoBackInTime();
         void onError();
         void onFirstMatchProcessed();
         void onAllMatchesProcessed();

@@ -10,11 +10,9 @@
 
     <TextView
         android:id="@+id/txt_summoner_name"
-        android:textColor="@android:color/white"
-        tools:text="Stu is poo"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        style="@style/ChampionName"
+        tools:text="Xerath" />
+
     <ImageView
         android:id="@+id/img_champion_portrait"
         tools:src="@drawable/ic_launcher"

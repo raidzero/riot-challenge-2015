@@ -2,14 +2,19 @@ package com.raidzero.lolstats.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothClass;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
@@ -32,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,7 +84,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private LinearLayout mMvpView;
     private TextView mvpName, mvpKda, mvpFirstBlood, mvpTowerKills, mvpInhibitorKills,
             mvpDamage, mvpKillingSpree, mvpDoubleKills, mvpTripleKills, mvpQuadraKills, mvpPentaKills,
-            mvpGoldEarned, mvpGoldSpent;
+            mvpGoldView;
+
+    private int mvpDisplayTime;
+    private ImageView mSettingsButtonView;
 
     private ImageDownloadListener mImageDownloadListener = new ImageDownloadListener() {
         @Override
@@ -125,6 +134,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
     };
 
+    public void onSettingsClick(View v) {
+        //
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,8 +170,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         mvpTripleKills = (TextView) findViewById(R.id.mvp_tripleKillView);
         mvpQuadraKills = (TextView) findViewById(R.id.mvp_quadraKillView);
         mvpPentaKills = (TextView) findViewById(R.id.mvp_pentaKillView);
-        mvpGoldEarned = (TextView) findViewById(R.id.mvp_goldEarnedView);
-        mvpGoldSpent = (TextView) findViewById(R.id.mvp_goldSpentView);
+        mvpGoldView = (TextView) findViewById(R.id.mvp_goldView);
+
+        mSettingsButtonView = (ImageView) findViewById(R.id.settings_button);
+        mSettingsButtonView.setVisibility(View.GONE);
     }
 
     @Override
@@ -203,6 +218,24 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         // start the runnable right away
         mRefreshHandler.postDelayed(getMatchAndDisplay, 0);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        try {
+            mvpDisplayTime = pref.getInt("pref_mvp_delay", 4) * 1000;
+        } catch (NumberFormatException e) {
+            // just dont crash.
+            mvpDisplayTime = 4000;
+        }
+
+        Log.d(tag, "MVP delay: " + mvpDisplayTime);
     }
 
     private void processChampions() {
@@ -345,7 +378,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                             mvp.inhibitorKills));
             mvpDamage.setText(
                     String.format(getResources().getString(R.string.mvp_damageView),
-                            mvp.damageDealt, mvp.damageTaken));
+                            new DecimalFormat("#,###").format(mvp.damageDealt),
+                            new DecimalFormat("#,###").format(mvp.damageTaken)));
             mvpKillingSpree.setText(
                     String.format(getResources().getString(R.string.mvp_largestKillingSpree),
                             mvp.inhibitorKills));
@@ -361,12 +395,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             mvpPentaKills.setText(
                     String.format(getResources().getString(R.string.mvp_pentaKills),
                             mvp.pentaKills));
-            mvpGoldEarned.setText(
-                    String.format(getResources().getString(R.string.mvp_goldEarned),
-                            mvp.goldEarned));
-            mvpGoldSpent.setText(
-                    String.format(getResources().getString(R.string.mvp_goldSpent),
-                            mvp.goldSpent));
+            mvpGoldView.setText(
+                    String.format(getResources().getString(R.string.mvp_goldView),
+                            new DecimalFormat("#,###").format(mvp.goldEarned),
+                            new DecimalFormat("#,###").format(mvp.goldSpent)));
         }
 
         if (winningChampion != null) {
@@ -386,8 +418,27 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     }
 
     @Override
-    public void onFirstMatchProcessed() {
+    public void onGoBackInTime() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mLoadingView.getVisibility() == View.GONE) {
+                    animateLoading(true);
+                }
+            }
+        });
+    }
 
+    @Override
+    public void onFirstMatchProcessed() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mLoadingView.getVisibility() == View.VISIBLE) {
+                    animateLoading(false);
+                }
+            }
+        });
     }
 
     @Override
@@ -403,8 +454,9 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                 mKeepLoading = false;
                 AlertDialog.Builder builder = new AlertDialog.Builder(MatchResultsView.this);
 
-                builder.setTitle("Network Error");
-                builder.setMessage("An error has occurred. Please verify you are connected to the internet and try again.");
+                builder.setTitle(getResources().getString(R.string.network_error_title));
+                builder.setMessage(getResources().getString(R.string.network_error_message));
+
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -480,8 +532,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         if (animation == mAnimMvpIn) {
             try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {}
+                Thread.sleep(mvpDisplayTime);
+            } catch (InterruptedException e) {
+                finish();
+            }
 
             animateMvpInOut(false);
             animateBgInOut(false);
