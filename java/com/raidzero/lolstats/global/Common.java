@@ -31,13 +31,13 @@ public class Common {
     public static final String CHAMPION_PORTRAIT_URL_PREFIX = "http://ddragon.leagueoflegends.com/cdn/5.2.2/img/champion/"; // {CHAMP_NAME}.png
 
     // URL prefix for all REST calls
-    public static final String API_PREFIX = "https://na.api.pvp.net/api/lol";
+    public static final String API_PREFIX = "https://%s.api.pvp.net/api/lol";
 
     // REST path for match info
-    public static final String MATCH_PATH = "/na/v2.2/match/";
+    public static final String MATCH_PATH = "/v2.2/match/"; // prefix with /region
 
     // REST path for random match ID's
-    public static final String RANDOM_MATCH_PATH = "/na/v4.1/game/ids"; // ?beginDate=1428687300
+    public static final String RANDOM_MATCH_PATH = "/v4.1/game/ids"; // ?beginDate=1428687300
 
     // REST path for champion info
     public static final String CHAMPION_PATH = "/static-data/na/v1.2/champion/";

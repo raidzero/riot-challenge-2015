@@ -1,7 +1,9 @@
 package com.raidzero.lolstats.global;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.raidzero.lolstats.data.Champion;
@@ -44,7 +46,7 @@ public class ApiUtility {
     // list of running threads
     private ArrayList<Thread> mRunningThreads = new ArrayList<>();
 
-    private String mTestApiReponse;
+    private String mRegion;
 
     /**
      * singleton stuff
@@ -196,7 +198,7 @@ public class ApiUtility {
             Log.d(tag, "timestamp: " + timestamp);
 
             String requestUrlStr =
-                    Common.API_PREFIX + Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
+                    String.format(Common.API_PREFIX, mRegion) + "/" + mRegion + Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
                             "&api_key=" + Common.getApiKey();
 
             String response = restRequest(requestUrlStr);
@@ -234,7 +236,8 @@ public class ApiUtility {
         @Override
         public void run() {
             String requestUrlStr =
-                    Common.API_PREFIX + Common.MATCH_PATH + mMatchId + "?api_key=" + Common.getApiKey();
+                    String.format(Common.API_PREFIX, mRegion) + "/" + mRegion +
+                            Common.MATCH_PATH + mMatchId + "?api_key=" + Common.getApiKey();
 
             String response = restRequest(requestUrlStr);
 
@@ -247,7 +250,8 @@ public class ApiUtility {
                     for (int i = 0; i < m.participants.length; i++) {
                         int championId = m.participants[i].champion.id;
                         String champReponse =
-                                restRequest(Common.API_PREFIX + Common.CHAMPION_PATH + championId +
+                                restRequest(String.format(Common.API_PREFIX, mRegion)
+                                        + Common.CHAMPION_PATH + championId +
                                 "?api_key=" + Common.getApiKey());
                         ChampionParser champParser = new ChampionParser(champReponse);
 
@@ -318,6 +322,9 @@ public class ApiUtility {
 
     // starts the whole shebang
     public void startProcessing() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mRegion = prefs.getString("pref_region", "na");
+
         try {
             startThread(startProcessingRunnable);
         } catch (InterruptedException e) {

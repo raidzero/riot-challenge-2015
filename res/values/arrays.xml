@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- regions -->
+    <string-array name="regionCodes">
+        <item>br</item>
+        <item>eune</item>
+        <item>euw</item>
+        <item>kr</item>
+        <item>lan</item>
+        <item>las</item>
+        <item>na</item>
+        <item>oce</item>
+        <item>ru</item>
+        <item>tr</item>
+    </string-array>
+
+    <string-array name="regionName">
+        <item>Brazil</item>
+        <item>EU Nordic &amp; East</item>
+        <item>EU West</item>
+        <item>Korea</item>
+        <item>Latin America North</item>
+        <item>Latin America South</item>
+        <item>North America</item>
+        <item>Oceania</item>
+        <item>Russia</item>
+        <item>Turkey</item>
+    </string-array>
+
+</resources>

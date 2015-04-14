@@ -21,6 +21,8 @@
     <string name="mvp_goldView">Gold Earned: %1$s. Spent: %2$s</string>
 
     <!-- settings -->
+    <string name="pref_region_title">Server Region</string>
+    <string name="pref_region_summary">Server Region for API data</string>
     <string name="pref_mvp_delay_title">MVP display time</string>
     <string name="pref_mvp_display_summary">Time in seconds for the MVP stats to be shown before moving to the next match</string>
 </resources>
