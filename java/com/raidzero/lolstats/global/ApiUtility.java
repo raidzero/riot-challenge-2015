@@ -185,8 +185,7 @@ public class ApiUtility {
     }
 
     public synchronized Match getNextMatch() {
-        Log.d(tag, "getNextMatch() " + mMatches.size() + " left");
-        Log.d(tag, "getNextMatch() " + mRunningThreads.size() + " threads running.");
+        Debug.Log(tag, "getNextMatch() " + mMatches.size() + " left");
 
         if (mMatches.size() == 2) {
             // matches are getting low. better get some more
@@ -206,12 +205,12 @@ public class ApiUtility {
             long timestamp = DateUtility.getTimestamp();
 
             if (mGoBackInTime > 0) {
-                Log.d(tag, "Going back in time (" + mGoBackInTime + " minutes)");
+                Debug.Log(tag, "Going back in time (" + mGoBackInTime + " minutes)");
             }
 
             timestamp -= mGoBackInTime * 60; // minutes in seconds
 
-            Log.d(tag, "timestamp: " + timestamp);
+            Debug.Log(tag, "timestamp: " + timestamp);
 
             String requestUrlStr =
                     String.format(Common.API_PREFIX, mRegion) + "/" + mRegion + Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
@@ -300,8 +299,8 @@ public class ApiUtility {
             synchronized(this) {
 
                 if (!mMatchIds.isEmpty()) {
-                    Log.d(tag, "Processing matches.");
-                    Log.d(tag, "got " + mMatchIds.size() + " matches");
+                    Debug.Log(tag, "Processing matches.");
+                    Debug.Log(tag, "got " + mMatchIds.size() + " matches");
 
                     if (!mMatchIds.isEmpty()) {
                         for (long matchId = getNextMatchId();
@@ -330,7 +329,7 @@ public class ApiUtility {
                     } catch (InterruptedException e) {
 
                     }
-                    Log.d(tag, "No matches found.");
+                    Debug.Log(tag, "No matches found.");
                     goBackInTime();
                 }
             }
@@ -350,7 +349,7 @@ public class ApiUtility {
     }
 
     public void shutDown() {
-        Log.d(tag, "shutting down all workers");
+        Debug.Log(tag, "shutting down all workers");
 
         for (Thread t : mRunningThreads) {
             t.interrupt();

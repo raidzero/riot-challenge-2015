@@ -22,8 +22,6 @@ public class ChampionParser extends JSONParser {
         name = jsonObject.getString("name");
         title = jsonObject.getString("title");
         key = jsonObject.getString("key");
-
-        //Log.d(tag, "parsing finished!");
     }
 
     public Champion getChampionFromParser() {

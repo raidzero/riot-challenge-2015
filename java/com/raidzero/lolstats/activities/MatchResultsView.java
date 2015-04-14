@@ -31,6 +31,7 @@ import com.raidzero.lolstats.data.Participant;
 import com.raidzero.lolstats.global.AnimationUtility;
 import com.raidzero.lolstats.global.ApiUtility;
 import com.raidzero.lolstats.global.Common;
+import com.raidzero.lolstats.global.Debug;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -249,7 +250,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         mAutoAdvance = pref.getBoolean("pref_auto_advance", true);
 
-        Log.d(tag, "MVP delay: " + mvpDisplayTime);
+        Debug.Log(tag, "MVP delay: " + mvpDisplayTime);
     }
 
     private void processChampions() {
@@ -351,7 +352,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         ImageDownloadListener bgListener = new ImageDownloadListener() {
             @Override
             public void onImageDownloaded(final String location, ImageView imageView, TextView summonerView, String summonerName) {
-                Log.d(tag, "setting background: " + location);
+                Debug.Log(tag, "setting background: " + location);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -420,7 +421,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         if (winningChampion != null) {
 
             // start an asynctask to download & display this image
-            Log.d(tag, "winning summoner: " + winningChampion.name);
+            Debug.Log(tag, "winning summoner: " + winningChampion.name);
 
             ImageDownloadTask task =
                     new ImageDownloadTask(
@@ -492,7 +493,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
     private void setLoadingScreenDrawable() {
         int randomNum = new Random().nextInt((7 - 1) + 1) + 1;
-        Log.d(tag, "setting random background image");
+        Debug.Log(tag, "setting random background image");
 
         try {
             Drawable bgDrawable = Drawable.createFromStream(getAssets().open("loading" + randomNum + ".jpg"), null);
@@ -701,7 +702,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         @Override
         protected String doInBackground(Void... params) {
-            //Log.d(tag, "doInBackground(" + mFileUrlString + ")");
+            //Debug.Log(tag, "doInBackground(" + mFileUrlString + ")");
 
             if (!mDownloadedFile.exists()) {
                 try {

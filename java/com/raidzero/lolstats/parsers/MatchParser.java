@@ -5,6 +5,7 @@ import android.util.Log;
 import com.raidzero.lolstats.data.Champion;
 import com.raidzero.lolstats.data.Match;
 import com.raidzero.lolstats.data.Participant;
+import com.raidzero.lolstats.global.Debug;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,8 +80,6 @@ public class MatchParser extends JSONParser {
                 Log.e(tag, e.getMessage());
             }
         }
-
-        Log.d(tag, "parsing finished!");
     }
 
     public Match getMatchFromParser() {
