@@ -165,26 +165,42 @@ public class ApiUtility {
         return downloadedFile.getAbsolutePath();
     }
 
-    private long getNextMatchId() {
+    /**
+     * synchronized stack accessor methods
+     */
+    private synchronized long getNextMatchId() {
         return mMatchIds.pop();
     }
 
-    public Match getNextMatch() {
-        Log.d(tag, "getNextMatch() " + mMatches.size()  + " left");
+    private synchronized void addMatchId(long id) {
+        mMatchIds.push(id);
+    }
+
+    private synchronized Match getNextMatchFromStack() {
+        return mMatches.pop();
+    }
+
+    private synchronized void addMatchToStack(Match m) {
+        mMatches.push(m);
+    }
+
+    public synchronized Match getNextMatch() {
+        Log.d(tag, "getNextMatch() " + mMatches.size() + " left");
+        Log.d(tag, "getNextMatch() " + mRunningThreads.size() + " threads running.");
 
         if (mMatches.size() == 2) {
             // matches are getting low. better get some more
-            mGoBackInTime += 5; // go back another five minutes
-            startProcessing();
+            goBackInTime();
         }
 
-        return mMatches.pop();
+        return getNextMatchFromStack();
     }
 
     /**
      * runnable to fill up mMatchIds
      */
     private Runnable getMatchIdsRunnable = new Runnable() {
+
         @Override
         public void run() {
             long timestamp = DateUtility.getTimestamp();
@@ -210,15 +226,15 @@ public class ApiUtility {
                     JSONArray array = new JSONArray(response);
 
                     for (int i = 0; i < array.length(); i++) {
-                        mMatchIds.push(array.getLong(i));
+                        addMatchId(array.getLong(i));
                     }
-
                 } catch (JSONException e) {
                     return;
                 }
             } else {
                 mCallback.onError();
                 shutDown();
+
             }
         }
     };
@@ -252,7 +268,7 @@ public class ApiUtility {
                         String champReponse =
                                 restRequest(String.format(Common.API_PREFIX, "na")
                                         + Common.CHAMPION_PATH + championId +
-                                "?api_key=" + Common.getApiKey());
+                                        "?api_key=" + Common.getApiKey());
                         ChampionParser champParser = new ChampionParser(champReponse);
 
                         Champion c = champParser.getChampionFromParser();
@@ -260,7 +276,8 @@ public class ApiUtility {
                         m.participants[i].champion = c;
                     }
 
-                    mMatches.add(m);
+                    addMatchToStack(m);
+
                 } catch (JSONException e) {
                     return;
                 }
@@ -280,42 +297,42 @@ public class ApiUtility {
 
             }
 
-            if (!mMatchIds.isEmpty()) {
-                Log.d(tag, "Processing matches.");
-                Log.d(tag, "got " + mMatchIds.size() + " matches");
+            synchronized(this) {
 
                 if (!mMatchIds.isEmpty()) {
-                    for (long matchId = getNextMatchId();
-                         mMatchIds.size() > 0; matchId = getNextMatchId()) {
+                    Log.d(tag, "Processing matches.");
+                    Log.d(tag, "got " + mMatchIds.size() + " matches");
 
-                        try {
-                            startThreadAndWait(new GetMatchRunnable(matchId));
-                        } catch (InterruptedException e) {
-                            return;
-                        }
+                    if (!mMatchIds.isEmpty()) {
+                        for (long matchId = getNextMatchId();
+                             mMatchIds.size() > 0; matchId = getNextMatchId()) {
 
-                        if (mMatches.size() == 1) {
-                            mCallback.onFirstMatchProcessed();
+                            try {
+                                startThreadAndWait(new GetMatchRunnable(matchId));
+                            } catch (InterruptedException e) {
+                                return;
+                            }
+
+                            if (mMatches.size() == 1) {
+                                mCallback.onFirstMatchProcessed();
+                            }
                         }
                     }
-                }
 
-                if (mMatches.size() == 1) {
-                    // only one returned. get some more just to be on the safe side
-                    mGoBackInTime += 5;
-                    mHandler.post(this);
-                }
-            } else {
-                // no matches. go back in time, after waiting a second so as not to exceed the rate limit
-                mCallback.onGoBackInTime();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
+                    if (mMatches.size() == 1) {
+                        // only one returned. get some more just to be on the safe side
+                        goBackInTime();
+                    }
+                } else {
+                    // no matches. go back in time, after waiting a second so as not to exceed the rate limit
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
 
+                    }
+                    Log.d(tag, "No matches found.");
+                    goBackInTime();
                 }
-                Log.d(tag, "No matches found.");
-                mGoBackInTime += 5;
-                mHandler.post(this);
             }
         }
     };
@@ -338,6 +355,15 @@ public class ApiUtility {
         for (Thread t : mRunningThreads) {
             t.interrupt();
         }
+
+        mRunningThreads.clear();
+    }
+
+    public void goBackInTime() {
+        mCallback.onGoBackInTime();
+        mGoBackInTime += 5;
+        shutDown();
+        startProcessing();
     }
 
     /**

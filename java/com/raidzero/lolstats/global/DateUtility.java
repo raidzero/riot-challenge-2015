@@ -32,6 +32,12 @@ public class DateUtility {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
 
-        return (c.getTime().getTime()) / 1000; // dont care about milliseconds
+        /**
+         * well, apparently the endpoint is shutdown. so that awesome stuff up there is worthless
+         * just return a known good timestamp with data in it :(
+         */
+
+        //return (c.getTime().getTime()) / 1000; // dont care about millisecond
+        return 1428917100;
     }
 }
