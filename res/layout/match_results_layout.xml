@@ -14,7 +14,7 @@
 
     <ImageView
         android:id="@+id/settings_button"
-        android:src="@drawable/settings"
+        android:src="@drawable/settings_selector"
         android:padding="3dp"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
@@ -206,7 +206,7 @@
 
     <ImageView
         android:id="@+id/nextButton"
-        android:src="@drawable/next"
+        android:src="@drawable/next_selector"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"

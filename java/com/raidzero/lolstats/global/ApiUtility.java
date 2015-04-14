@@ -213,7 +213,8 @@ public class ApiUtility {
             Debug.Log(tag, "timestamp: " + timestamp);
 
             String requestUrlStr =
-                    String.format(Common.API_PREFIX, mRegion) + "/" + mRegion + Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
+                    String.format(Common.API_PREFIX, mRegion) + "/" + mRegion +
+                            Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
                             "&api_key=" + Common.getApiKey();
 
             String response = restRequest(requestUrlStr);
@@ -348,7 +349,7 @@ public class ApiUtility {
         }
     }
 
-    public void shutDown() {
+    public synchronized void shutDown() {
         Debug.Log(tag, "shutting down all workers");
 
         for (Thread t : mRunningThreads) {

@@ -232,7 +232,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         // start the runnable right away
         mRefreshHandler.postDelayed(getMatchAndDisplay, 0);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
