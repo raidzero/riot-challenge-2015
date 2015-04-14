@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -76,6 +77,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private TranslateAnimation mAnimTeam1In, mAnimTeam2In, mAnimTeam1Out , mAnimTeam2Out;
     private TranslateAnimation mAnimTeam1Up, mAnimTeam2Down;
     private TranslateAnimation mAnimMvpIn, mAnimMvpOut;
+    private TranslateAnimation mNextIn, mNextOut;
     private ScaleAnimation mAnimVersusIn, mAnimVersusOut;
     private AlphaAnimation mAnimStatsIn, mAnimStatsOut;
     private AlphaAnimation mAnimBgIn, mAnimBgOut;
@@ -138,6 +140,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     public void onNextButtonClick(View v) {
         mNextButtonView.setVisibility(View.GONE);
 
+        animateNextInOut(false);
         animateMvpInOut(false);
         animateBgInOut(false);
     }
@@ -178,8 +181,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         mSettingsButtonView = (ImageView) findViewById(R.id.settings_button);
         mSettingsButtonView.setVisibility(View.GONE);
+
         mNextButtonView = (ImageView) findViewById(R.id.nextButton);
-        mNextButtonView.setVisibility(View.GONE);
     }
 
     @Override
@@ -220,6 +223,9 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         mAnimBgIn = AnimationUtility.getAlpha(0.0f, 1.0f, 2000, this);
         mAnimBgOut = AnimationUtility.getAlpha(1.0f, 0.0f, 500, this);
 
+        mNextIn = AnimationUtility.getTranslation(0, 0, -mScreenHeight, 0, 250, this);
+        mNextOut = AnimationUtility.getTranslation(0, 0, 0, -mScreenHeight, 250, this);
+
         animateLoading(false);
 
         // start the runnable right away
@@ -247,8 +253,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     }
 
     private void processChampions() {
+
         Participant[] participants = mMatch.participants;
 
+        mNextButtonView.setVisibility(View.GONE);
         mTeam1StatsView.setVisibility(View.GONE);
         mTeam2StatsView.setVisibility(View.GONE);
 
@@ -546,11 +554,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                     finish();
                 }
 
-
                 animateMvpInOut(false);
                 animateBgInOut(false);
             } else {
-                mNextButtonView.setVisibility(View.VISIBLE);
+                animateNextInOut(true);
             }
         }
 
@@ -624,6 +631,15 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             mMvpView.startAnimation(mAnimMvpIn);
         } else {
             mMvpView.startAnimation(mAnimMvpOut);
+        }
+    }
+
+    private void animateNextInOut(boolean in) {
+        if (in) {
+            mNextButtonView.setVisibility(View.VISIBLE);
+            mNextButtonView.startAnimation(mNextIn);
+        } else {
+            mNextButtonView.startAnimation(mNextOut);
         }
     }
 
