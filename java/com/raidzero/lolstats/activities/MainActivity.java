@@ -30,8 +30,6 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     private LinearLayout mLoadingView;
     public static Drawable bgDrawable;
     private ApiUtility mApiUtility;
-    private boolean mDisplayMatch = true;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +46,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     }
 
     public void onSettingsClick(View v) {
-        mDisplayMatch = false;
+        mApiUtility.shutDown();
         startActivityForResult(new Intent(this, SettingsActivity.class), Common.REQUEST_CODE_SETTINGS);
     }
 
@@ -77,9 +75,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
 
     @Override
     public void onFirstMatchProcessed() {
-        if (mDisplayMatch) {
-            runOnUiThread(startMatchView);
-        }
+        runOnUiThread(startMatchView);
     }
 
     @Override
@@ -89,13 +85,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
                 quit();
                 break;
             case Common.REQUEST_CODE_SETTINGS:
-                if (data.getBooleanExtra("restartApi", false)) {
-                    mApiUtility.shutDown();
-                    mApiUtility.startProcessing();
-                }
-
-                mDisplayMatch = true;
-                onFirstMatchProcessed();
+                mApiUtility.startProcessing();
                 break;
         }
     }
