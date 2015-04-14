@@ -87,7 +87,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             mvpGoldView;
 
     private int mvpDisplayTime;
-    private ImageView mSettingsButtonView;
+    private boolean mAutoAdvance;
+    private ImageView mSettingsButtonView, mNextButtonView;
 
     private ImageDownloadListener mImageDownloadListener = new ImageDownloadListener() {
         @Override
@@ -134,8 +135,11 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
     };
 
-    public void onSettingsClick(View v) {
-        //
+    public void onNextButtonClick(View v) {
+        mNextButtonView.setVisibility(View.GONE);
+
+        animateMvpInOut(false);
+        animateBgInOut(false);
     }
 
     @Override
@@ -174,6 +178,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         mSettingsButtonView = (ImageView) findViewById(R.id.settings_button);
         mSettingsButtonView.setVisibility(View.GONE);
+        mNextButtonView = (ImageView) findViewById(R.id.nextButton);
+        mNextButtonView.setVisibility(View.GONE);
     }
 
     @Override
@@ -234,6 +240,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
             // just dont crash.
             mvpDisplayTime = 4000;
         }
+
+        mAutoAdvance = pref.getBoolean("pref_auto_advance", true);
 
         Log.d(tag, "MVP delay: " + mvpDisplayTime);
     }
@@ -531,14 +539,19 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         }
 
         if (animation == mAnimMvpIn) {
-            try {
-                Thread.sleep(mvpDisplayTime);
-            } catch (InterruptedException e) {
-                finish();
-            }
+            if (mAutoAdvance) {
+                try {
+                    Thread.sleep(mvpDisplayTime);
+                } catch (InterruptedException e) {
+                    finish();
+                }
 
-            animateMvpInOut(false);
-            animateBgInOut(false);
+
+                animateMvpInOut(false);
+                animateBgInOut(false);
+            } else {
+                mNextButtonView.setVisibility(View.VISIBLE);
+            }
         }
 
         if (animation == mAnimMvpOut) {
