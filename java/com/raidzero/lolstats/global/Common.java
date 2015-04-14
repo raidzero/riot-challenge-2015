@@ -21,6 +21,9 @@ public class Common {
         }
     }
 
+    public static final int REQUEST_CODE_MATCHES = 1000;
+    public static final int REQUEST_CODE_SETTINGS = 1001;
+
     // static list of 5 match ID's. this will be replaced with random match ID's.
     public static final int[] MATCH_IDS = { 1749315593, 1750322945, 1751326160, 1751406221, 1755642247 };
 

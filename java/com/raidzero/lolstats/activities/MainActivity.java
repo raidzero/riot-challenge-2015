@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.raidzero.lolstats.R;
 import com.raidzero.lolstats.global.ApiUtility;
+import com.raidzero.lolstats.global.Common;
 
 import java.io.IOException;
 import java.util.Random;
@@ -31,8 +32,6 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     private ApiUtility mApiUtility;
     private boolean mDisplayMatch = true;
 
-    private final int REQUEST_CODE_MATCHES = 1000;
-    private final int REQUEST_CODE_SETTINGS = 1001;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
 
     public void onSettingsClick(View v) {
         mDisplayMatch = false;
-        startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_SETTINGS);
+        startActivityForResult(new Intent(this, SettingsActivity.class), Common.REQUEST_CODE_SETTINGS);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
             Intent i = new Intent(MainActivity.this, MatchResultsView.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-            startActivityForResult(i, REQUEST_CODE_MATCHES);
+            startActivityForResult(i, Common.REQUEST_CODE_MATCHES);
         }
     };
 
@@ -86,10 +85,15 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_CODE_MATCHES:
+            case Common.REQUEST_CODE_MATCHES:
                 quit();
                 break;
-            case REQUEST_CODE_SETTINGS:
+            case Common.REQUEST_CODE_SETTINGS:
+                if (data.getBooleanExtra("restartApi", false)) {
+                    mApiUtility.shutDown();
+                    mApiUtility.startProcessing();
+                }
+
                 mDisplayMatch = true;
                 onFirstMatchProcessed();
                 break;
