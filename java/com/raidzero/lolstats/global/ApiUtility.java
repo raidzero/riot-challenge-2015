@@ -250,7 +250,7 @@ public class ApiUtility {
                     for (int i = 0; i < m.participants.length; i++) {
                         int championId = m.participants[i].champion.id;
                         String champReponse =
-                                restRequest(String.format(Common.API_PREFIX, mRegion)
+                                restRequest(String.format(Common.API_PREFIX, "na")
                                         + Common.CHAMPION_PATH + championId +
                                 "?api_key=" + Common.getApiKey());
                         ChampionParser champParser = new ChampionParser(champReponse);
