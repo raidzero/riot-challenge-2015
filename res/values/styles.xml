@@ -5,6 +5,10 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="SettingsTheme" parent="@style/Theme.AppCompat.Light">
+
+    </style>
+
     <!-- champion names on team containers -->
     <style name="ChampionName" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">@android:color/white</item>

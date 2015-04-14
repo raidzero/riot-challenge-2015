@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ListPreference
-        android:key="pref_region"
-        android:defaultValue="na"
-        android:title="@string/pref_region_title"
-        android:summary="@string/pref_region_summary"
-        android:entries="@array/regionName"
-        android:entryValues="@array/regionCodes"/>
+    <PreferenceCategory
+        android:key="pref_main_category"
+        android:title="@string/settings_title">
 
-    <com.raidzero.lolstats.data.NumberPickerPreference
-        android:key="pref_mvp_delay"
-        android:defaultValue="4"
-        android:title="@string/pref_mvp_delay_title"
-        android:summary="@string/pref_mvp_display_summary" />
+        <ListPreference
+            android:key="pref_region"
+            android:defaultValue="na"
+            android:title="@string/pref_region_title"
+            android:summary="@string/pref_region_summary"
+            android:entries="@array/regionName"
+            android:entryValues="@array/regionCodes"/>
+
+        <CheckBoxPreference
+            android:key="pref_auto_advance"
+            android:defaultValue="true"
+            android:title="@string/pref_auto_advance_title" />
+
+        <com.raidzero.lolstats.data.NumberPickerPreference
+            android:key="pref_mvp_delay"
+            android:defaultValue="4"
+            android:title="@string/pref_mvp_delay_title"
+            android:summary="@string/pref_mvp_display_summary" />
+
+    </PreferenceCategory>
 </PreferenceScreen>
