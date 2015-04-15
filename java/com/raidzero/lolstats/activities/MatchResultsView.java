@@ -2,16 +2,13 @@ package com.raidzero.lolstats.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothClass;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -71,6 +68,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private String mTeam1StatsStr, mTeam2StatsStr;
 
     private int mWinningTeamId = 0;
+    private Drawable mMvpDrawable;
 
     // view dimensions
     private int mScreenHeight, mScreenWidth;
@@ -263,8 +261,11 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
     private void processChampions() {
         animateLoading(false);
-        
+
         Participant[] participants = mMatch.participants;
+
+        // start working on the mvp background since it takes the longest to download
+        getBackgroundChampion();
 
         mNextButtonView.setVisibility(View.GONE);
         mTeam1StatsView.setVisibility(View.GONE);
@@ -354,6 +355,10 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     }
 
     private void setBackgroundChampion() {
+        mBackground.setImageDrawable(mMvpDrawable);
+    }
+
+    private void getBackgroundChampion() {
         // pick the winner
         List<Participant> participants = Arrays.asList(mMatch.participants);
         Collections.sort(participants);
@@ -368,8 +373,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
                         mContainerTeam1.setVisibility(View.VISIBLE);
                         mContainerTeam2.setVisibility(View.VISIBLE);
 
-                        Drawable bgImg = Drawable.createFromPath(location);
-                        mBackground.setImageDrawable(bgImg);
+                        mMvpDrawable = Drawable.createFromPath(location);
                     }
                 });
             }
@@ -444,7 +448,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     }
 
     @Override
-    public void onGoBackInTime() {
+    public void onTimeTravel() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -121,7 +121,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     };
 
     @Override
-    public void onGoBackInTime() {
+    public void onTimeTravel() {
         // dont care.
     }
 

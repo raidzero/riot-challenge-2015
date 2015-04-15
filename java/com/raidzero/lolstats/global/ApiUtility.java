@@ -42,7 +42,6 @@ public class ApiUtility {
     private Stack<Long> mMatchIds = new Stack<>();
     private Stack<Match> mMatches = new Stack<>();
 
-    private int mGoBackInTime = 0;
     // list of running threads
     private ArrayList<Thread> mRunningThreads = new ArrayList<>();
 
@@ -83,7 +82,6 @@ public class ApiUtility {
         t.start();
         t.join();
     }
-
 
     private void startThread(Runnable r) throws InterruptedException
     {
@@ -200,7 +198,7 @@ public class ApiUtility {
 
         if (mMatches.size() == sizeThreshold) {
             // matches are getting low. better get some more
-            goBackInTime();
+            timeTravel();
         }
 
         return getNextMatchFromStack();
@@ -257,12 +255,6 @@ public class ApiUtility {
         @Override
         public void run() {
             long timestamp = DateUtility.getTimestamp();
-
-            if (mGoBackInTime > 0) {
-                Debug.Log(tag, "Going back in time (" + mGoBackInTime + " minutes)");
-            }
-
-            timestamp -= mGoBackInTime * 60; // minutes in seconds
 
             Debug.Log(tag, "timestamp: " + timestamp);
 
@@ -387,7 +379,7 @@ public class ApiUtility {
 
                     if (mMatches.size() == 1) {
                         // only one returned. get some more just to be on the safe side
-                        goBackInTime();
+                        timeTravel();
                     }
                 } else {
                     // no matches. go back in time, after waiting a second so as not to exceed the rate limit
@@ -397,7 +389,7 @@ public class ApiUtility {
 
                     }
                     Debug.Log(tag, "No matches found.");
-                    goBackInTime();
+                    timeTravel();
                 }
             }
         }
@@ -427,9 +419,8 @@ public class ApiUtility {
         mRunningThreads.clear();
     }
 
-    public void goBackInTime() {
-        mCallback.onGoBackInTime();
-        mGoBackInTime += 5;
+    public void timeTravel() {
+        mCallback.onTimeTravel();
         startProcessing();
     }
 
@@ -437,7 +428,7 @@ public class ApiUtility {
      * callback interface
      */
     public interface ApiCallback {
-        void onGoBackInTime();
+        void onTimeTravel();
         void onError();
         void onFirstMatchProcessed();
         void onAllMatchesProcessed();

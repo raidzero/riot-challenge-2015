@@ -1,6 +1,7 @@
 package com.raidzero.lolstats.global;
 
 import java.util.Calendar;
+import java.util.Random;
 
 /**
  * Created by raidzero on 4/10/15.
@@ -32,12 +33,16 @@ public class DateUtility {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
 
+        //return (c.getTime().getTime()) / 1000; // dont care about millisecond
+
         /**
-         * well, apparently the endpoint is shutdown. so that awesome stuff up there is worthless
-         * just return a known good timestamp with data in it :(
+         * well, apparently there are no more URF matches. so that awesome stuff up there is worthless.
+         * starting at 1428917100; pick one of 3500 random timestamps in the past and return it
          */
 
-        //return (c.getTime().getTime()) / 1000; // dont care about millisecond
-        return 1428917100;
+        long timestamp = 1428917100;
+        int random = new Random().nextInt(3500);
+
+        return timestamp - (random * 5 * 60);
     }
 }
