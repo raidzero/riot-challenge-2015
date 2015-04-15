@@ -18,6 +18,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -124,10 +125,11 @@ public class ApiUtility {
             while ((bytesRead = bis.read(buffer)) != -1) {
                 response += new String(buffer, 0, bytesRead);
             }
+        } catch (InterruptedIOException ie) {
+            shutDown();
         } catch (Exception e) {
             Debug.Log(tag, "restRequest exception: ", e);
             mCallback.onError();
-
             shutDown();
         }
 
@@ -187,7 +189,8 @@ public class ApiUtility {
     }
 
     public synchronized Match getNextMatch() {
-        Debug.Log(tag, "getNextMatch() " + mMatches.size() + " left");
+        Debug.Log(tag, "getNextMatch() " + mMatches.size() + " left. " +
+                getNumRunningThreads() + " running threads");
         Debug.Log(tag, "using challenge api? " + mUseChallengeApi);
 
         int sizeThreshold = 2;
@@ -308,7 +311,7 @@ public class ApiUtility {
                     for (int i = 0; i < m.participants.length; i++) {
                         int championId = m.participants[i].champion.id;
                         String champReponse =
-                                restRequest(String.format(Common.API_PREFIX, mRegion)
+                                restRequest(String.format(Common.API_PREFIX, "global")
                                         + String.format(Common.CHAMPION_PATH, mRegion)
                                         + championId +
                                         "?api_key=" + Common.getApiKey());
@@ -403,7 +406,7 @@ public class ApiUtility {
         try {
             startThread(startProcessingRunnable);
         } catch (InterruptedException e) {
-            shutDown();
+
         }
     }
 
@@ -417,6 +420,17 @@ public class ApiUtility {
         }
 
         mRunningThreads.clear();
+    }
+
+    private int getNumRunningThreads() {
+        int count = 0;
+        for (Thread t : mRunningThreads) {
+            if (t.isAlive()) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public void timeTravel() {

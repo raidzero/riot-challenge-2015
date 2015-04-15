@@ -144,7 +144,7 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
                 quit();
                 break;
             case Common.REQUEST_CODE_SETTINGS:
-                mApiUtility.startProcessing();
+                startApi();
                 break;
         }
     }

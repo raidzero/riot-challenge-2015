@@ -239,6 +239,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        animateLoading(false);
     }
 
     @Override
@@ -260,8 +262,6 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     }
 
     private void processChampions() {
-        animateLoading(false);
-
         Participant[] participants = mMatch.participants;
 
         // start working on the mvp background since it takes the longest to download
