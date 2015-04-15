@@ -47,6 +47,7 @@ public class ApiUtility {
     private ArrayList<Thread> mRunningThreads = new ArrayList<>();
 
     private String mRegion;
+    private boolean mUseChallengeApi = true;
 
     /**
      * singleton stuff
@@ -68,6 +69,7 @@ public class ApiUtility {
 
         return instance;
     }
+
     /**
      * starts a thread given a runnable, and waits for it to finish
      */
@@ -188,14 +190,64 @@ public class ApiUtility {
 
     public synchronized Match getNextMatch() {
         Debug.Log(tag, "getNextMatch() " + mMatches.size() + " left");
+        Debug.Log(tag, "using challenge api? " + mUseChallengeApi);
 
-        if (mMatches.size() == 2) {
+        int sizeThreshold = 2;
+
+        if (!mUseChallengeApi) {
+            sizeThreshold = 1;
+        }
+
+        if (mMatches.size() == sizeThreshold) {
             // matches are getting low. better get some more
             goBackInTime();
         }
 
         return getNextMatchFromStack();
     }
+
+    /**
+     * runnable to test the challenge api
+     */
+    private Runnable testApiRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long timestamp = DateUtility.getTimestamp();
+            URL requestUrl;
+
+            String requestUrlStr =
+                    String.format(Common.API_PREFIX, mRegion) + "/" + mRegion +
+                            Common.RANDOM_MATCH_PATH + "?beginDate=" + timestamp +
+                            "&api_key=" + Common.getApiKey();
+            String response = "";
+
+            try {
+                requestUrl = new URL(requestUrlStr);
+
+                URLConnection urlConnection = requestUrl.openConnection();
+                urlConnection.setUseCaches(true);
+                urlConnection.connect();
+
+                InputStream is = urlConnection.getInputStream();
+                BufferedInputStream bis = new BufferedInputStream(is);
+
+                byte[] buffer = new byte[1024]; // read 1024 bytes at a time
+
+                int bytesRead = 0;
+
+                response = "";
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    response += new String(buffer, 0, bytesRead);
+                }
+            } catch (Exception e) {
+                mUseChallengeApi = false;
+            }
+
+            if (!response.isEmpty()) {
+                mUseChallengeApi = true;
+            }
+        }
+    };
 
     /**
      * runnable to fill up mMatchIds
@@ -233,10 +285,6 @@ public class ApiUtility {
                 } catch (JSONException e) {
                     return;
                 }
-            } else {
-                mCallback.onError();
-                shutDown();
-
             }
         }
     };
@@ -291,13 +339,28 @@ public class ApiUtility {
     private Runnable startProcessingRunnable = new Runnable() {
         @Override
         public void run() {
-            // first, get a list of match ID's from the API
-            try {
-                startThreadAndWait(getMatchIdsRunnable);
-            } catch (InterruptedException e) {
-                return;
-            } catch (Exception e) {
 
+            // is the challenge api up?
+            try {
+                startThreadAndWait(testApiRunnable);
+            } catch (InterruptedException e) {
+
+            }
+
+            // first, get a list of match ID's from the API... or not, if its not up :(
+            if (!mUseChallengeApi) {
+                Log.i(tag, "Not using challenge API :'(");
+                for (long id : Common.getMatchesForRegion(mRegion)) {
+                    mMatchIds.push(id);
+                }
+            } else {
+                try {
+                    startThreadAndWait(getMatchIdsRunnable);
+                } catch (InterruptedException e) {
+                    return;
+                } catch (Exception e) {
+
+                }
             }
 
             synchronized(this) {
@@ -357,7 +420,7 @@ public class ApiUtility {
 
         for (Thread t : mRunningThreads) {
             if (t.isAlive()) {
-                t.interrupt();
+                 t.interrupt();
             }
         }
 
@@ -367,7 +430,6 @@ public class ApiUtility {
     public void goBackInTime() {
         mCallback.onGoBackInTime();
         mGoBackInTime += 5;
-        shutDown();
         startProcessing();
     }
 
