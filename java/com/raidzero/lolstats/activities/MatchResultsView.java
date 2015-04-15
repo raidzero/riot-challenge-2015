@@ -62,6 +62,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
     private ImageView mBackground;
     private LinearLayout mLoadingView;
+    private LinearLayout mLogoView;
     private LinearLayout mContainerTeam1, mContainerTeam2;
     private ImageView mVersusView;
     private TextView mTeam1StatsView, mTeam2StatsView;
@@ -75,6 +76,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     private int mScreenHeight, mScreenWidth;
 
     // animations
+    private AlphaAnimation mAnimLogoOut;
     private TranslateAnimation mAnimTeam1In, mAnimTeam2In, mAnimTeam1Out , mAnimTeam2Out;
     private TranslateAnimation mAnimTeam1Up, mAnimTeam2Down;
     private TranslateAnimation mAnimMvpIn, mAnimMvpOut;
@@ -158,6 +160,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
 
         mBackground = (ImageView) findViewById(R.id.match_background);
         mLoadingView = (LinearLayout) findViewById(R.id.loadingView);
+        mLogoView = (LinearLayout) findViewById(R.id.logo_container);
+
         mContainerTeam1 = (LinearLayout) findViewById(R.id.team1Container);
         mContainerTeam2 = (LinearLayout) findViewById(R.id.team2Container);
         mVersusView = (ImageView) findViewById(R.id.versus);
@@ -196,6 +200,9 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         /**
          * make animations
          */
+        // logo out
+        mAnimLogoOut = AnimationUtility.getAlpha(1.0f, 0.0f, 500, this);
+
         // teams in - 500ms
         mAnimTeam1In = AnimationUtility.getTranslation(mScreenWidth, 0, 0, 0, 500, this);
         mAnimTeam2In = AnimationUtility.getTranslation(-mScreenWidth, 0, 0, 0, 500, this);
@@ -227,7 +234,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
         mNextIn = AnimationUtility.getTranslation(0, 0, -mScreenHeight, 0, 250, this);
         mNextOut = AnimationUtility.getTranslation(0, 0, 0, -mScreenHeight, 250, this);
 
-        animateLoading(false);
+        mLogoView.startAnimation(mAnimLogoOut);
 
         // start the runnable right away
         mRefreshHandler.postDelayed(getMatchAndDisplay, 0);
@@ -255,7 +262,8 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
     }
 
     private void processChampions() {
-
+        animateLoading(false);
+        
         Participant[] participants = mMatch.participants;
 
         mNextButtonView.setVisibility(View.GONE);

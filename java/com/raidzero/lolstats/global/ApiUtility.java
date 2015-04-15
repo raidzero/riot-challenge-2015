@@ -125,8 +125,10 @@ public class ApiUtility {
                 response += new String(buffer, 0, bytesRead);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return "";
+            Debug.Log(tag, "restRequest exception: ", e);
+            mCallback.onError();
+
+            shutDown();
         }
 
         return response;
@@ -353,7 +355,9 @@ public class ApiUtility {
         Debug.Log(tag, "shutting down all workers");
 
         for (Thread t : mRunningThreads) {
-            t.interrupt();
+            if (t.isAlive()) {
+                t.interrupt();
+            }
         }
 
         mRunningThreads.clear();

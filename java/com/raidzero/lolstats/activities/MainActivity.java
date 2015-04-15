@@ -4,13 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -27,9 +30,11 @@ import java.util.Random;
 public class MainActivity extends Activity implements ApiUtility.ApiCallback {
     private final String tag = "MainActivity";
 
+    private ImageView mSettingsView;
     private LinearLayout mLoadingView;
     public static Drawable bgDrawable;
     private ApiUtility mApiUtility;
+    private SharedPreferences mPrefs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,12 +42,48 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
 
         setContentView(R.layout.match_results_layout);
 
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        mSettingsView = (ImageView) findViewById(R.id.settings_button);
         mLoadingView = (LinearLayout) findViewById(R.id.loadingView);
 
         setLoadingScreenDrawable();
-        animateLoading(true);
+    }
+
+    private void doFirstRun() {
+        // not anymore...
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putBoolean("firstRun", false);
+        editor.apply();
+
+        // show nice dialog asking if the user would like to configure the app
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.first_run_title));
+        builder.setMessage(getString(R.string.first_run_message));
+
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                onFirstRunExit(true);
+            }
+        });
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                onFirstRunExit(false);
+            }
+        });
+
+        builder.show();
+    }
+
+    private void onFirstRunExit(boolean goToSettings) {
+        if (goToSettings) {
+            startActivityForResult(new Intent(this, SettingsActivity.class), Common.REQUEST_CODE_SETTINGS);
+        } else {
+            startApi();
+        }
     }
 
     public void onSettingsClick(View v) {
@@ -50,17 +91,28 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
         startActivityForResult(new Intent(this, SettingsActivity.class), Common.REQUEST_CODE_SETTINGS);
     }
 
+    private void startApi() {
+        animateLoading(true);
+        mApiUtility = ApiUtility.getInstance(this);
+        mApiUtility.startProcessing();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
 
-        mApiUtility = ApiUtility.getInstance(this);
-        mApiUtility.startProcessing();
+        if (mPrefs.getBoolean("firstRun", true)) {
+            mSettingsView.setVisibility(View.GONE);
+            doFirstRun();
+        } else {
+            startApi();
+        }
     }
 
     private Runnable startMatchView = new Runnable() {
         @Override
         public void run() {
+            animateLoading(false);
             Intent i = new Intent(MainActivity.this, MatchResultsView.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
@@ -75,6 +127,13 @@ public class MainActivity extends Activity implements ApiUtility.ApiCallback {
 
     @Override
     public void onFirstMatchProcessed() {
+        try {
+            // give the user at least one second to get to settings
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            quit();
+        }
+
         runOnUiThread(startMatchView);
     }
 

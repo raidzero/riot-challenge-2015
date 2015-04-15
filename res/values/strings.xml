@@ -20,6 +20,11 @@
     <string name="mvp_pentaKills">Penta Kills: %1$d</string>
     <string name="mvp_goldView">Gold Earned: %1$s. Spent: %2$s</string>
 
+    <!-- first run -->
+    <string name="first_run_title">First Run</string>
+    <string name="first_run_message">Welcome to Slideshow of Legends! Would you like to take a moment to configure the application?
+        \n\nIt defaults to North America and a delay of 4 seconds between matches. You can also set the delay or specify manual advancing of matches.</string>
+
     <!-- settings -->
     <string name="settings_title">Settings</string>
 
