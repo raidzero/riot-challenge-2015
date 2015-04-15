@@ -201,7 +201,7 @@ public class MatchResultsView extends Activity implements ApiUtility.ApiCallback
          * make animations
          */
         // logo out
-        mAnimLogoOut = AnimationUtility.getAlpha(1.0f, 0.0f, 500, this);
+        mAnimLogoOut = AnimationUtility.getAlpha(1.0f, 0.0f, 750, this);
 
         // teams in - 500ms
         mAnimTeam1In = AnimationUtility.getTranslation(mScreenWidth, 0, 0, 0, 500, this);
