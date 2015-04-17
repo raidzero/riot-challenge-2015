@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/match_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        />
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:src="@drawable/settings_selector"
+        android:padding="3dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:onClick="onSettingsClick" />
+
+    <View
+        android:id="@+id/centerMarker"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerInParent="true"
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/team1Container"
+        android:orientation="horizontal"
+        android:layout_above="@id/centerMarker"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/team2Container"
+        android:orientation="horizontal"
+        android:layout_below="@id/centerMarker"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txt_team1Stats"
+        style="@style/TeamStats"
+        android:paddingTop="5dp"
+        android:layout_below="@id/team1Container"
+        android:visibility="gone"
+
+        />
+
+    <TextView
+        android:id="@+id/txt_team2Stats"
+        style="@style/TeamStats"
+        android:paddingBottom="5dp"
+        android:layout_above="@id/team2Container"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/versus"
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_height="150dp"
+        android:src="@drawable/versus"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/loadingView"
+        android:padding="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/loading_background"
+        android:layout_marginBottom="10dp"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:src="@drawable/ic_launcher"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textSize="32sp"
+            android:textColor="#fbf4bd"
+            android:text="@string/loading_end"
+            android:shadowColor="@android:color/black"
+            android:shadowRadius="25" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mvpContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/loading_background"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:text="@string/mvp_title"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/mvp_name"
+            tools:text="Sivir the Battle Mistress"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mvp_kda"
+            tools:text="Kills: 14, Deaths: 5, Assists: 20"
+            android:textStyle="bold|italic"
+            android:textSize="18sp"
+            android:textColor="#00ff00"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"/>
+
+        <TextView
+            android:id="@+id/mvp_firstBloodView"
+            tools:text="First Blood: No"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_towerKillView"
+            tools:text="Tower Kills: 3"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_inhibitorKillView"
+            tools:text="Inhibitor Kills: 0"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_damageView"
+            tools:text="Damage Dealt: 228,127, Taken: 43,662"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_killingSpreeView"
+            tools:text="Largest Killing Spree: 5"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_doubleKillView"
+            tools:text="Double Kills: 1"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_tripleKillView"
+            tools:text="Triple Kills: 1"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_quadraKillView"
+            tools:text="Quadra Kills: 0"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_pentaKillView"
+            tools:text="Penta Kills: 1"
+            style="@style/MvpStats" />
+
+        <TextView
+            android:id="@+id/mvp_goldView"
+            tools:text="Gold Earned: 21,112, Spent: 12,000"
+            style="@style/MvpStats" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/nextButton"
+        android:src="@drawable/next_selector"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:padding="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:onClick="onNextButtonClick"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/logo_container"
+        android:layout_above="@id/centerMarker"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal">
+
+        <!-- left padding -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.2" />
+
+        <!-- ensure logo takes up 60% of screen width -->
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            android:src="@drawable/logo" />
+
+        <!-- right padding -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.2" />
+    </LinearLayout>
+
+</RelativeLayout>

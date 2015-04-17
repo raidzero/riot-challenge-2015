@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Slideshow of Legends</string>
+
+    <string name="loading_end">oading&#8230;</string>
+
+    <string name="network_error_title">Network Error</string>
+    <string name="network_error_message">An error has occurred. Unable to communicate with Riot API.</string>
+
+    <!-- MVP view -->
+    <string name="mvp_title">Deadliest Champion:</string>
+    <string name="mvp_kda">Kills: %1$d, Deaths: %2$d, Assists: %3$d</string>
+    <string name="mvp_firstBlood">First Blood: %1$s</string>
+    <string name="mvp_towerKills">Tower Kills: %1$d</string>
+    <string name="mvp_inhibitorKills">Inhibitor Kills: %1$d</string>
+    <string name="mvp_damageView">Damage Dealt: %1$s. Taken: %2$s</string>
+    <string name="mvp_largestKillingSpree">Largest Killing Spree: %1$d</string>
+    <string name="mvp_doubleKills">Double Kills: %1$d</string>
+    <string name="mvp_tripleKills">Triple Kills: %1$d</string>
+    <string name="mvp_quadraKills">Quadra Kills: %1$d</string>
+    <string name="mvp_pentaKills">Penta Kills: %1$d</string>
+    <string name="mvp_goldView">Gold Earned: %1$s. Spent: %2$s</string>
+
+    <!-- first run -->
+    <string name="first_run_title">First Run</string>
+    <string name="first_run_message">Welcome to Slideshow of Legends! Would you like to take a moment to configure the application?
+        \n\nIt defaults to North America and a delay of 4 seconds between matches. You can also set the delay or specify manual advancing of matches.</string>
+
+    <!-- settings -->
+    <string name="settings_title">Settings</string>
+
+    <string name="pref_region_title">Server Region</string>
+    <string name="pref_region_summary">Server to use for API data: %s</string>
+
+    <string name="pref_auto_advance_title">Auto-Advance Match</string>
+    <string name="pref_auto_advance_summary_enabled">Auto advance matches every %1$d second(s)</string>
+    <string name="pref_auto_advance_summary_disabled">Manually advance to the next match</string>
+
+    <string name="pref_mvp_delay_title">MVP Display Time</string>
+    <string name="pref_mvp_display_summary">Time in seconds for the MVP stats to be shown before moving to the next match</string>
+</resources>
