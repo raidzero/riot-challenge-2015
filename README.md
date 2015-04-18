@@ -5,7 +5,7 @@ This is an app that displays a match slideshow for the 2015 Riot API Challenge.
 Full development log can be found in the Android branch [here](https://github.com/raidzero/riot-challenge-2015/tree/Android)  
 
 Screencast: [Download](screenshots/Demo_Screencast.mp4) [Youtube](https://www.youtube.com/watch?v=WD8kA2ozWPU)  
-APK: [Download](apk/SoL.apk)  
+APK: [Download](apk/SoL.apk?raw=true)  
   
 ##Screenshots##
 Loading Screen:  
